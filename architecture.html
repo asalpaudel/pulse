@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    background: #ffffff;
+    color: #1f2937;
+    padding: 48px 56px;
+    width: 1500px;
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.5px;
+    color: #7a1f1f;
+    margin-bottom: 4px;
+  }
+  .sub {
+    text-align: center;
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 32px;
+  }
+  .actors {
+    display: flex;
+    justify-content: center;
+    gap: 64px;
+    margin-bottom: 14px;
+  }
+  .actor {
+    background: #7a1f1f;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 30px;
+    border-radius: 999px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.18);
+  }
+  .connector {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 22px;
+    line-height: 1;
+    margin: 6px 0;
+  }
+  .layer {
+    border: 1.5px solid #d4d4d8;
+    border-radius: 12px;
+    padding: 16px 20px 20px;
+    margin-bottom: 6px;
+    background: #fafafa;
+  }
+  .layer-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #6b7280;
+    margin-bottom: 14px;
+  }
+  .layer-title span { color: #9ca3af; font-weight: 500; text-transform: none; letter-spacing: 0; }
+  .row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .node {
+    flex: 1;
+    min-width: 0;
+    background: #fff;
+    border: 1.5px solid #c7d2fe;
+    border-radius: 8px;
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #312e81;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+  .node small { display: block; font-weight: 400; color: #6b7280; font-size: 11px; margin-top: 2px; }
+  .layer.app .node { border-color: #c4b5fd; color: #4c1d95; }
+  .layer.data .node {
+    border-color: #cbd5e1;
+    color: #334155;
+    border-radius: 8px 8px 14px 14px;
+    background: linear-gradient(#fff 70%, #f1f5f9);
+  }
+  .layer.ext { background: #fff7ed; border-color: #fdba74; border-style: dashed; }
+  .layer.ext .layer-title { color: #c2410c; }
+  .layer.ext .node { border-color: #fdba74; color: #9a3412; background: #fff; }
+  .ext-row { display: flex; gap: 14px; }
+  .ext-row .node { flex: 1; }
+  .ws-note {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 12px;
+    color: #6b7280;
+  }
+  .ws-note b { color: #7a1f1f; }
+  .caption {
+    text-align: center;
+    font-style: italic;
+    font-size: 13px;
+    color: #4b5563;
+    margin-top: 26px;
+  }
+</style>
+</head>
+<body>
+  <h1>PULSE · System Architecture</h1>
+  <div class="sub">Centralized Real-Time Digital Blood Coordination and Emergency Response Platform</div>
+
+  <div class="actors">
+    <div class="actor">Donor</div>
+    <div class="actor">Hospital</div>
+    <div class="actor">Blood Bank</div>
+    <div class="actor">Administrator</div>
+  </div>
+  <div class="connector">▼ &nbsp;&nbsp;&nbsp; ▼ &nbsp;&nbsp;&nbsp; ▼ &nbsp;&nbsp;&nbsp; ▼</div>
+
+  <div class="layer">
+    <div class="layer-title">Presentation Layer &nbsp;<span>· React.js + Tailwind CSS · Leaflet / OpenStreetMap map views</span></div>
+    <div class="row">
+      <div class="node">Donor Interface</div>
+      <div class="node">Hospital Interface</div>
+      <div class="node">Blood Bank Interface</div>
+      <div class="node">Admin Interface</div>
+    </div>
+  </div>
+  <div class="connector">▼ &nbsp; REST / HTTPS &nbsp; ▼</div>
+
+  <div class="layer app">
+    <div class="layer-title">Application Layer &nbsp;<span>· Java Spring Boot REST APIs · JWT auth · role-based access control</span></div>
+    <div class="row">
+      <div class="node">Authentication<small>Service</small></div>
+      <div class="node">Donor<small>Service</small></div>
+      <div class="node">Blood Request<small>Service</small></div>
+      <div class="node">Search &amp; Location<small>Service</small></div>
+      <div class="node">Blood Stock<small>Service</small></div>
+      <div class="node">Donation Event<small>Service</small></div>
+      <div class="node">Notification<small>Service</small></div>
+      <div class="node">Admin<small>Service</small></div>
+    </div>
+  </div>
+  <div class="connector">▼ &nbsp; JPA / SQL &nbsp; ▼</div>
+
+  <div class="layer data">
+    <div class="layer-title">Data Layer &nbsp;<span>· PostgreSQL</span></div>
+    <div class="row">
+      <div class="node">Users</div>
+      <div class="node">Donors</div>
+      <div class="node">Hospitals</div>
+      <div class="node">Blood Banks</div>
+      <div class="node">Blood Requests</div>
+      <div class="node">Blood Stock</div>
+      <div class="node">Donation Events</div>
+      <div class="node">Notifications</div>
+    </div>
+  </div>
+
+  <div class="connector" style="margin-top:14px;">▲ &nbsp; integrations &nbsp; ▲</div>
+  <div class="layer ext">
+    <div class="layer-title">External Integrations</div>
+    <div class="ext-row">
+      <div class="node">OpenStreetMap / Nominatim<small>map tiles &amp; geocoding — no API key</small></div>
+      <div class="node">Email Service<small>fallback alert delivery</small></div>
+    </div>
+  </div>
+
+  <div class="ws-note">
+    Real-time emergency alerts pushed from the <b>Notification Service</b> to client interfaces over <b>WebSocket / STOMP</b>;
+    email used as fallback when a user is offline. Proximity search runs server-side on stored coordinates.
+  </div>
+
+  <div class="caption">Figure: System Architecture of Pulse</div>
+</body>
+</html>
