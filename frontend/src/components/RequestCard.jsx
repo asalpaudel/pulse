@@ -1,44 +1,92 @@
+import { MapPin, Droplet, Clock, ShieldCheck } from "lucide-react";
 import Card from "./ui/Card";
-import StatusPill, { UrgencyPill } from "./ui/StatusPill";
+import BloodGroupBadge from "./ui/BloodGroupBadge";
+import StatusPill, { PriorityPill } from "./ui/StatusPill";
 import { bloodGroupLabel, formatDateTime } from "../lib/constants";
 
-// Compact card for a BloodRequest used across donor / bloodbank / hospital views.
-export default function RequestCard({ request, children }) {
+/**
+ * RequestCard — white card for a BloodRequest, used across donor / hospital /
+ * bloodbank views.
+ *
+ * Props:
+ *  - request    : BloodRequest (required) — { bloodGroup, units, urgency, status, note, latitude, longitude, createdAt }
+ *  - requesterName : optional string shown as the bold title (falls back to a generic label)
+ *  - distanceKm : optional number — renders a "Xkm away" meta row
+ *  - verified   : optional bool   — renders a green "Verified Request" row
+ *  - elevated   : optional bool   — visually lifts one card in a row
+ *  - children   : footer slot for the action button(s)
+ */
+export default function RequestCard({
+  request,
+  requesterName,
+  distanceKm,
+  verified = false,
+  elevated = false,
+  children,
+}) {
+  const hasLocation = request.latitude != null || request.address;
+  const locationLabel =
+    request.address ||
+    (request.latitude != null
+      ? `${request.latitude?.toFixed?.(4)}, ${request.longitude?.toFixed?.(4)}`
+      : null);
+
   return (
-    <Card className="p-4">
+    <Card
+      className={`flex flex-col p-5 ${
+        elevated ? "shadow-md ring-1 ring-primary/10" : ""
+      }`}
+    >
+      {/* Top row — blood group + priority/status */}
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 flex-col items-center justify-center rounded-lg bg-pulse/10">
-            <span className="text-base font-bold leading-none text-pulse">
-              {bloodGroupLabel(request.bloodGroup)}
-            </span>
-            <span className="mt-0.5 text-[10px] text-pulse/70">
-              {request.units} u
-            </span>
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <UrgencyPill urgency={request.urgency} />
-              <StatusPill status={request.status} />
-            </div>
-            <p className="mt-1 text-xs text-stone-400">
-              Posted {formatDateTime(request.createdAt)}
-            </p>
-          </div>
+        <BloodGroupBadge group={request.bloodGroup} size="md" />
+        <div className="flex flex-wrap items-center justify-end gap-1.5">
+          <PriorityPill urgency={request.urgency} />
+          <StatusPill status={request.status} />
         </div>
       </div>
+
+      {/* Requester */}
+      <p className="mt-3 font-bold text-secondary">
+        {requesterName || `${bloodGroupLabel(request.bloodGroup)} blood request`}
+      </p>
+      <p className="text-xs text-neutral-400">
+        Posted {formatDateTime(request.createdAt)}
+      </p>
+
+      {/* Meta rows */}
+      <div className="mt-3 space-y-1.5 text-sm text-neutral-600">
+        {distanceKm != null && (
+          <p className="flex items-center gap-2">
+            <MapPin size={16} strokeWidth={1.8} className="text-neutral-400" />
+            {Number(distanceKm).toFixed(1)}km away
+          </p>
+        )}
+        <p className="flex items-center gap-2">
+          <Droplet size={16} strokeWidth={1.8} className="text-neutral-400" />
+          {request.units} unit{request.units === 1 ? "" : "s"} required
+        </p>
+        {hasLocation && locationLabel && (
+          <p className="flex items-center gap-2">
+            <Clock size={16} strokeWidth={1.8} className="text-neutral-400" />
+            {locationLabel}
+          </p>
+        )}
+        {verified && (
+          <p className="flex items-center gap-2 font-medium text-green-700">
+            <ShieldCheck size={16} strokeWidth={1.9} />
+            Verified Request
+          </p>
+        )}
+      </div>
+
       {request.note && (
-        <p className="mt-3 rounded-lg bg-stone-50 px-3 py-2 text-sm text-stone-600">
+        <p className="mt-3 rounded-xl bg-blush-soft px-3 py-2 text-sm text-neutral-600">
           {request.note}
         </p>
       )}
-      {(request.latitude != null || request.address) && (
-        <p className="mt-2 text-xs text-stone-400">
-          {request.address ||
-            `${request.latitude?.toFixed?.(4)}, ${request.longitude?.toFixed?.(4)}`}
-        </p>
-      )}
-      {children && <div className="mt-3">{children}</div>}
+
+      {children && <div className="mt-4">{children}</div>}
     </Card>
   );
 }

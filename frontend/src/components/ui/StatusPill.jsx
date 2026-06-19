@@ -1,29 +1,80 @@
+import { TriangleAlert } from "lucide-react";
 import Badge from "./Badge";
 
-// Maps BloodRequest lifecycle status -> badge tone.
-const STATUS_TONE = {
+// Generic label → tone mapping per the design spec.
+// Covers request lifecycle, urgency, verification and response states.
+const TONE_BY_LABEL = {
+  // red — urgent / emergency
+  URGENT: "red",
+  EMERGENCY: "red",
+  // amber — warning / pending / open
   OPEN: "amber",
+  PENDING: "amber",
+  WARNING: "amber",
+  "HIGH PRIORITY": "amber",
+  // blue — active / matched / info
   MATCHED: "blue",
+  ACTIVE: "blue",
+  INFO: "blue",
+  ROUTINE: "blue",
+  OFFERED: "blue",
+  // green — eligible / verified / fulfilled / success
   FULFILLED: "green",
-  CLOSED: "slate",
+  ELIGIBLE: "green",
+  VERIFIED: "green",
+  ACCEPTED: "green",
+  SUCCESS: "green",
+  AVAILABLE: "green",
+  // neutral — closed / inactive
+  CLOSED: "neutral",
+  INACTIVE: "neutral",
+  UNAVAILABLE: "neutral",
 };
 
-export default function StatusPill({ status }) {
-  const tone = STATUS_TONE[status] || "neutral";
-  return <Badge tone={tone}>{status || "—"}</Badge>;
+function toneForStatus(value) {
+  if (!value) return "neutral";
+  return TONE_BY_LABEL[String(value).toUpperCase()] || "neutral";
 }
 
-// Urgency pill — EMERGENCY is loud, ROUTINE is quiet.
-export function UrgencyPill({ urgency }) {
-  if (urgency === "EMERGENCY") {
+// StatusPill — pass a `status` (BloodRequest lifecycle or any labelled state).
+export default function StatusPill({ status, icon, className = "" }) {
+  return (
+    <Badge tone={toneForStatus(status)} icon={icon} className={className}>
+      {status || "—"}
+    </Badge>
+  );
+}
+
+// PriorityPill — emphasises urgency. EMERGENCY renders solid red and loud.
+export function PriorityPill({ priority, urgency, className = "" }) {
+  const value = priority || urgency;
+  if (String(value).toUpperCase() === "EMERGENCY") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-pulse px-2.5 py-0.5 text-xs font-semibold text-white">
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+      <span
+        className={`inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-white ${className}`}
+      >
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white motion-reduce:animate-none" />
         EMERGENCY
       </span>
     );
   }
-  return <Badge tone="neutral">ROUTINE</Badge>;
+  if (String(value).toUpperCase() === "URGENT") {
+    return (
+      <Badge tone="red" icon={TriangleAlert} className={className}>
+        URGENT
+      </Badge>
+    );
+  }
+  return (
+    <Badge tone={toneForStatus(value)} className={className}>
+      {value || "ROUTINE"}
+    </Badge>
+  );
+}
+
+// Back-compat alias — existing pages import `UrgencyPill`.
+export function UrgencyPill({ urgency }) {
+  return <PriorityPill urgency={urgency} />;
 }
 
 export function VerifiedPill({ verified }) {

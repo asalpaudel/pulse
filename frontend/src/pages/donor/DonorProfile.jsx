@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import PageHeader from "../../components/PageHeader";
 import Card, { CardHeader, CardBody } from "../../components/ui/Card";
 import { Input, Select } from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
+import BloodGroupBadge from "../../components/ui/BloodGroupBadge";
+import StatusPill, { VerifiedPill } from "../../components/ui/StatusPill";
 import LocationFields from "../../components/LocationFields";
 import Spinner from "../../components/ui/Spinner";
-import { VerifiedPill } from "../../components/ui/StatusPill";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import * as donorsApi from "../../api/donors";
@@ -65,38 +67,51 @@ export default function DonorProfile() {
       <PageHeader title="My Profile" subtitle="Manage your donor details" />
 
       <div className="grid gap-6 lg:grid-cols-3">
+        {/* Identity card */}
         <Card className="lg:col-span-1">
           <CardBody>
             <div className="flex flex-col items-center text-center">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-pulse text-2xl font-bold text-white">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-2xl font-bold text-white">
                 {(form.fullName || user?.email || "?").charAt(0).toUpperCase()}
               </div>
-              <p className="mt-3 font-semibold text-stone-900">
+              <p className="mt-3 text-lg font-bold text-secondary">
                 {form.fullName || "Donor"}
               </p>
-              <p className="text-sm text-stone-500">{user?.email}</p>
               <div className="mt-3 flex items-center gap-2">
-                <span className="rounded-full bg-pulse/10 px-3 py-1 text-sm font-semibold text-pulse">
-                  {bloodGroupLabel(form.bloodGroup)}
-                </span>
+                <BloodGroupBadge group={form.bloodGroup} size="sm" />
                 <VerifiedPill verified={user?.verified} />
-              </div>
-              <div
-                className={`mt-3 flex items-center gap-2 text-sm ${
-                  form.available ? "text-emerald-600" : "text-stone-400"
-                }`}
-              >
-                <span
-                  className={`h-2 w-2 rounded-full ${
-                    form.available ? "bg-emerald-500" : "bg-stone-400"
-                  }`}
+                <StatusPill
+                  status={form.available ? "AVAILABLE" : "UNAVAILABLE"}
                 />
-                {form.available ? "Available" : "Unavailable"}
               </div>
             </div>
+
+            <dl className="mt-6 space-y-3 text-sm">
+              <div className="flex items-center gap-2.5 text-neutral-600">
+                <Mail size={16} strokeWidth={1.8} className="text-neutral-400" />
+                <span className="truncate">{user?.email || "—"}</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-neutral-600">
+                <Phone
+                  size={16}
+                  strokeWidth={1.8}
+                  className="text-neutral-400"
+                />
+                <span>{form.phone || "—"}</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-neutral-600">
+                <MapPin
+                  size={16}
+                  strokeWidth={1.8}
+                  className="text-neutral-400"
+                />
+                <span className="truncate">{form.address || "—"}</span>
+              </div>
+            </dl>
           </CardBody>
         </Card>
 
+        {/* Edit form */}
         <Card className="lg:col-span-2">
           <CardHeader title="Edit details" />
           <CardBody>
@@ -131,12 +146,12 @@ export default function DonorProfile() {
 
               <LocationFields values={form} onChange={set} />
 
-              <label className="flex items-center gap-2 text-sm text-stone-700">
+              <label className="flex items-center gap-2 text-sm text-secondary">
                 <input
                   type="checkbox"
                   checked={Boolean(form.available)}
                   onChange={(e) => set("available", e.target.checked)}
-                  className="accent-pulse"
+                  className="accent-primary"
                 />
                 Available to donate
               </label>

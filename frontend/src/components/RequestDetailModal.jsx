@@ -77,31 +77,31 @@ export default function RequestDetailModal({ open, request, onClose, onUpdated }
     >
       <div className="space-y-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-14 w-14 flex-col items-center justify-center rounded-lg bg-pulse/10">
-            <span className="text-lg font-bold leading-none text-pulse">
+          <div className="flex h-14 w-14 flex-col items-center justify-center rounded-lg bg-primary/10">
+            <span className="text-lg font-bold leading-none text-primary">
               {bloodGroupLabel(request.bloodGroup)}
             </span>
-            <span className="text-[10px] text-pulse/70">
+            <span className="text-[10px] text-primary/70">
               {request.units} units
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <UrgencyPill urgency={request.urgency} />
             <StatusPill status={request.status} />
-            <span className="text-xs text-stone-400">
+            <span className="text-xs text-neutral-400">
               Posted {formatDateTime(request.createdAt)}
             </span>
           </div>
         </div>
 
         {request.note && (
-          <p className="rounded-lg bg-stone-50 px-3 py-2 text-sm text-stone-600">
+          <p className="rounded-lg bg-blush-soft px-3 py-2 text-sm text-neutral-600">
             {request.note}
           </p>
         )}
 
         <div>
-          <p className="mb-1 text-sm font-medium text-stone-700">
+          <p className="mb-1 text-sm font-medium text-secondary">
             Advance lifecycle
           </p>
           <Select value={status} onChange={(e) => setStatus(e.target.value)}>
@@ -114,30 +114,30 @@ export default function RequestDetailModal({ open, request, onClose, onUpdated }
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-medium text-stone-700">
+          <p className="mb-2 text-sm font-medium text-secondary">
             Responses{" "}
-            <span className="text-stone-400">({responses.length})</span>
+            <span className="text-neutral-400">({responses.length})</span>
           </p>
           {loading ? (
             <Spinner label="Loading responses…" />
           ) : responses.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-stone-200 px-3 py-6 text-center text-sm text-stone-400">
+            <p className="rounded-lg border border-dashed border-neutral-200 px-3 py-6 text-center text-sm text-neutral-400">
               No responses yet. Donors and blood banks who offer to help will
               appear here.
             </p>
           ) : (
-            <ul className="divide-y divide-stone-100 rounded-lg border border-stone-200">
+            <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
               {responses.map((r) => (
                 <li
                   key={r.id}
                   className="flex items-center justify-between px-3 py-2.5"
                 >
                   <div>
-                    <p className="text-sm font-medium text-stone-800">
+                    <p className="text-sm font-medium text-neutral-800">
                       {ROLE_LABELS[r.responderRole] || r.responderRole} #
                       {r.responderUserId}
                     </p>
-                    <p className="text-xs text-stone-400">
+                    <p className="text-xs text-neutral-400">
                       {formatDateTime(r.createdAt)}
                     </p>
                   </div>

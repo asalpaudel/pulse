@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "Pulse",
+    "slug": "pulse",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "pulse",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F5E1DD",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pulse.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Pulse uses your location to match you with nearby emergency blood requests and donation events."
+      }
+    },
+    "android": {
+      "package": "com.pulse.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#102A43",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Pulse uses your location to match you with nearby emergency blood requests and donation events."
+        }
+      ]
+    ],
+    "extra": {
+      "apiBase": "http://192.168.1.127:8080"
+    }
+  }
+}

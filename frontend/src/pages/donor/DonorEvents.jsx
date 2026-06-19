@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { CalendarDays } from "lucide-react";
 import PageHeader from "../../components/PageHeader";
 import EventCard from "../../components/EventCard";
 import Button from "../../components/ui/Button";
@@ -65,6 +66,7 @@ export default function DonorEvents() {
         <Spinner />
       ) : upcoming.length === 0 ? (
         <EmptyState
+          icon={CalendarDays}
           title="No upcoming events"
           message="Blood banks haven't scheduled any donation events yet. Check back soon."
         />

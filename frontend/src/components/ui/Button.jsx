@@ -1,19 +1,27 @@
 const VARIANTS = {
+  // Primary — red fill, the hero CTA.
   primary:
-    "bg-pulse text-white hover:bg-pulse-dark focus-visible:ring-pulse/40 shadow-sm",
+    "bg-primary text-white hover:bg-primary-600 focus-visible:ring-primary/40 shadow-sm",
+  // Secondary — light pink fill, low-emphasis next to a primary.
   secondary:
-    "bg-white text-pulse border border-pulse/30 hover:bg-pulse/5 focus-visible:ring-pulse/30",
-  ghost:
-    "bg-transparent text-stone-600 hover:bg-stone-100 focus-visible:ring-stone-300",
-  danger:
-    "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-400 shadow-sm",
+    "bg-blush-card text-primary border border-primary/20 hover:bg-blush-soft focus-visible:ring-primary/30",
+  // Inverted — deep navy fill for structural emphasis.
+  inverted:
+    "bg-secondary text-white hover:bg-secondary-500 focus-visible:ring-secondary/40 shadow-sm",
+  // Outlined — bordered, neutral chrome (e.g. "View Details").
   outline:
-    "bg-transparent text-stone-700 border border-stone-300 hover:bg-stone-50 focus-visible:ring-stone-300",
+    "bg-white text-secondary border border-neutral-300 hover:bg-blush-soft focus-visible:ring-neutral-300",
+  // Ghost — minimal, for low-emphasis actions.
+  ghost:
+    "bg-transparent text-neutral-600 hover:bg-neutral-100 focus-visible:ring-neutral-300",
+  // Danger — destructive actions (uses the primary red family).
+  danger:
+    "bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary/40 shadow-sm",
 };
 
 const SIZES = {
-  sm: "px-3 py-1.5 text-sm",
-  md: "px-4 py-2 text-sm",
+  sm: "px-3 py-1.5 text-sm min-h-[36px]",
+  md: "px-4 py-2.5 text-sm min-h-[44px]",
   lg: "px-6 py-3 text-base",
 };
 
@@ -31,7 +39,7 @@ export default function Button({
     <button
       type={type}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors duration-150 focus:outline-none focus-visible:ring-2 disabled:opacity-50 disabled:cursor-not-allowed ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
       {...rest}
     >
       {loading && (

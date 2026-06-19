@@ -103,9 +103,9 @@ export default function CreateRequestModal({ open, onClose, onCreated }) {
               className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition ${
                 form.urgency === u
                   ? u === "EMERGENCY"
-                    ? "border-pulse bg-pulse/5 text-pulse"
-                    : "border-stone-400 bg-stone-50 text-stone-800"
-                  : "border-stone-300 text-stone-500 hover:border-stone-400"
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-neutral-400 bg-blush-soft text-secondary"
+                  : "border-neutral-300 text-neutral-600 hover:border-neutral-400"
               }`}
             >
               <input
@@ -118,7 +118,7 @@ export default function CreateRequestModal({ open, onClose, onCreated }) {
               />
               {u === "EMERGENCY" && (
                 <span
-                  className={`h-1.5 w-1.5 rounded-full bg-pulse ${
+                  className={`h-1.5 w-1.5 rounded-full bg-primary ${
                     form.urgency === u ? "animate-pulse" : ""
                   }`}
                 />
@@ -162,11 +162,11 @@ export default function CreateRequestModal({ open, onClose, onCreated }) {
         />
 
         <div onFocus={prefill}>
-          <p className="mb-2 text-sm font-medium text-stone-700">
+          <p className="mb-2 text-sm font-medium text-secondary">
             Request location
           </p>
           <LocationFields values={form} onChange={set} />
-          <p className="mt-2 text-xs text-stone-400">
+          <p className="mt-2 text-xs text-neutral-400">
             Used to alert nearby donors and blood banks. Defaults to your
             hospital location if left blank.
           </p>
@@ -183,7 +183,7 @@ export default function CreateRequestModal({ open, onClose, onCreated }) {
               onChange={(e) => set("radiusKm", e.target.value)}
               placeholder="15"
             />
-            <div className="rounded-lg bg-pulse/5 px-3 py-2 text-xs text-pulse">
+            <div className="rounded-lg bg-primary/5 px-3 py-2 text-xs text-primary">
               Posting an emergency request immediately alerts matching donors and
               nearby blood banks within the radius in real time.
             </div>

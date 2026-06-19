@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+import { Droplet, Filter } from "lucide-react";
 import PageHeader from "../../components/PageHeader";
 import RequestCard from "../../components/RequestCard";
 import Button from "../../components/ui/Button";
 import Spinner, { EmptyState } from "../../components/ui/Spinner";
-import { Select } from "../../components/ui/Input";
+import FilterChip from "../../components/ui/FilterChip";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import * as requestsApi from "../../api/requests";
@@ -16,6 +17,7 @@ export default function DonorRequests() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("OPEN");
   const [onlyMatching, setOnlyMatching] = useState(true);
+  const [onlyUrgent, setOnlyUrgent] = useState(false);
   const [responding, setResponding] = useState(null);
   const [responded, setResponded] = useState(() => new Set());
 
@@ -51,46 +53,66 @@ export default function DonorRequests() {
     }
   };
 
-  const visible = requests.filter(
-    (r) => !onlyMatching || !profile?.bloodGroup || r.bloodGroup === profile.bloodGroup,
-  );
+  const visible = requests.filter((r) => {
+    if (
+      onlyMatching &&
+      profile?.bloodGroup &&
+      r.bloodGroup !== profile.bloodGroup
+    )
+      return false;
+    if (onlyUrgent && r.urgency !== "EMERGENCY") return false;
+    return true;
+  });
 
   return (
     <div>
       <PageHeader
         title="Blood Requests"
         subtitle="Respond to requests you can help fulfil"
-        action={
-          <div className="flex items-center gap-2">
-            <label className="flex items-center gap-2 text-sm text-stone-600">
-              <input
-                type="checkbox"
-                checked={onlyMatching}
-                onChange={(e) => setOnlyMatching(e.target.checked)}
-                className="accent-pulse"
-              />
-              My group ({bloodGroupLabel(profile?.bloodGroup)})
-            </label>
-            <Select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-36"
-            >
-              <option value="">All statuses</option>
-              {REQUEST_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </Select>
-          </div>
-        }
       />
+
+      {/* Filter chips */}
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <FilterChip
+          active={onlyMatching}
+          icon={Droplet}
+          onClick={() => setOnlyMatching((v) => !v)}
+        >
+          My group ({bloodGroupLabel(profile?.bloodGroup)})
+        </FilterChip>
+        <FilterChip
+          active={onlyUrgent}
+          onClick={() => setOnlyUrgent((v) => !v)}
+        >
+          Urgent only
+        </FilterChip>
+        <span className="mx-1 h-5 w-px bg-neutral-200" />
+        <FilterChip
+          active={statusFilter === ""}
+          onClick={() => setStatusFilter("")}
+        >
+          All statuses
+        </FilterChip>
+        {REQUEST_STATUSES.map((s) => (
+          <FilterChip
+            key={s}
+            active={statusFilter === s}
+            onClick={() => setStatusFilter(s)}
+          >
+            {s}
+          </FilterChip>
+        ))}
+        <span className="ml-auto inline-flex items-center gap-1.5 text-sm text-neutral-600">
+          <Filter size={15} strokeWidth={1.8} />
+          {visible.length} result{visible.length === 1 ? "" : "s"}
+        </span>
+      </div>
 
       {loading ? (
         <Spinner />
       ) : visible.length === 0 ? (
         <EmptyState
+          icon={Droplet}
           title="No requests found"
           message="There are no blood requests matching your filters right now."
         />
@@ -104,15 +126,16 @@ export default function DonorRequests() {
                 {canRespond ? (
                   <Button
                     size="sm"
+                    className="w-full"
                     variant={done ? "outline" : "primary"}
                     disabled={done}
                     loading={responding === r.id}
                     onClick={() => respond(r.id)}
                   >
-                    {done ? "Response sent" : "I can donate"}
+                    {done ? "Response sent" : "Apply to Donate"}
                   </Button>
                 ) : (
-                  <span className="text-xs text-stone-400">
+                  <span className="block text-center text-xs text-neutral-400">
                     Closed for responses
                   </span>
                 )}
