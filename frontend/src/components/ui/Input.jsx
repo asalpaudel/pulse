@@ -1,82 +1,115 @@
 export function Input({ label, error, hint, className = "", id, ...rest }) {
   const inputId = id || rest.name;
+  const errorId = `${inputId}-error`;
+  const hintId = `${inputId}-hint`;
+  const describedBy = error ? errorId : hint ? hintId : undefined;
   return (
     <div className={className}>
       {label && (
         <label
           htmlFor={inputId}
-          className="mb-1 block text-sm font-medium text-stone-700"
+          className="mb-1 block text-sm font-medium text-secondary"
         >
           {label}
         </label>
       )}
       <input
         id={inputId}
-        className={`w-full rounded-lg border bg-white px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 transition focus:outline-none focus:ring-2 ${
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={describedBy}
+        className={`w-full rounded-xl border bg-white px-3 py-2 text-sm text-neutral-800 placeholder:text-neutral-400 transition focus:outline-none focus:ring-2 ${
           error
-            ? "border-red-400 focus:ring-red-300"
-            : "border-stone-300 focus:border-pulse focus:ring-pulse/30"
+            ? "border-primary-400 focus:ring-primary-300"
+            : "border-neutral-300 focus:border-primary focus:ring-primary/30"
         }`}
         {...rest}
       />
       {hint && !error && (
-        <p className="mt-1 text-xs text-stone-500">{hint}</p>
+        <p id={hintId} className="mt-1 text-xs text-neutral-600">{hint}</p>
       )}
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && (
+        <p id={errorId} role="alert" className="mt-1 text-xs text-primary-600">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
 
-export function Select({ label, error, children, className = "", id, ...rest }) {
+export function Select({ label, error, hint, children, className = "", id, ...rest }) {
   const inputId = id || rest.name;
+  const errorId = `${inputId}-error`;
+  const hintId = `${inputId}-hint`;
+  const describedBy = error ? errorId : hint ? hintId : undefined;
   return (
     <div className={className}>
       {label && (
         <label
           htmlFor={inputId}
-          className="mb-1 block text-sm font-medium text-stone-700"
+          className="mb-1 block text-sm font-medium text-secondary"
         >
           {label}
         </label>
       )}
       <select
         id={inputId}
-        className={`w-full rounded-lg border bg-white px-3 py-2 text-sm text-stone-900 transition focus:outline-none focus:ring-2 ${
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={describedBy}
+        className={`w-full rounded-xl border bg-white px-3 py-2 text-sm text-neutral-800 transition focus:outline-none focus:ring-2 ${
           error
-            ? "border-red-400 focus:ring-red-300"
-            : "border-stone-300 focus:border-pulse focus:ring-pulse/30"
+            ? "border-primary-400 focus:ring-primary-300"
+            : "border-neutral-300 focus:border-primary focus:ring-primary/30"
         }`}
         {...rest}
       >
         {children}
       </select>
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {hint && !error && (
+        <p id={hintId} className="mt-1 text-xs text-neutral-600">{hint}</p>
+      )}
+      {error && (
+        <p id={errorId} role="alert" className="mt-1 text-xs text-primary-600">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
 
-export function Textarea({ label, error, className = "", id, ...rest }) {
+export function Textarea({ label, error, hint, className = "", id, ...rest }) {
   const inputId = id || rest.name;
+  const errorId = `${inputId}-error`;
+  const hintId = `${inputId}-hint`;
+  const describedBy = error ? errorId : hint ? hintId : undefined;
   return (
     <div className={className}>
       {label && (
         <label
           htmlFor={inputId}
-          className="mb-1 block text-sm font-medium text-stone-700"
+          className="mb-1 block text-sm font-medium text-secondary"
         >
           {label}
         </label>
       )}
       <textarea
         id={inputId}
-        className={`w-full rounded-lg border bg-white px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 transition focus:outline-none focus:ring-2 ${
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={describedBy}
+        className={`w-full rounded-xl border bg-white px-3 py-2 text-sm text-neutral-800 placeholder:text-neutral-400 transition focus:outline-none focus:ring-2 ${
           error
-            ? "border-red-400 focus:ring-red-300"
-            : "border-stone-300 focus:border-pulse focus:ring-pulse/30"
+            ? "border-primary-400 focus:ring-primary-300"
+            : "border-neutral-300 focus:border-primary focus:ring-primary/30"
         }`}
         {...rest}
       />
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {hint && !error && (
+        <p id={hintId} className="mt-1 text-xs text-neutral-600">{hint}</p>
+      )}
+      {error && (
+        <p id={errorId} role="alert" className="mt-1 text-xs text-primary-600">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

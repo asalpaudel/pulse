@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { CalendarDays, CalendarPlus, Users, UserRound } from "lucide-react";
 import PageHeader from "../../components/PageHeader";
 import EventCard from "../../components/EventCard";
 import Modal from "../../components/ui/Modal";
@@ -103,7 +104,10 @@ export default function BloodBankEvents() {
         title="Donation Events"
         subtitle="Create and manage collection drives and campaigns"
         action={
-          <Button onClick={() => setCreateOpen(true)}>+ New event</Button>
+          <Button onClick={() => setCreateOpen(true)}>
+            <CalendarPlus size={16} strokeWidth={1.9} />
+            New event
+          </Button>
         }
       />
 
@@ -111,6 +115,7 @@ export default function BloodBankEvents() {
         <Spinner />
       ) : myEvents.length === 0 ? (
         <EmptyState
+          icon={CalendarDays}
           title="No events yet"
           message="Create a donation event to start collecting blood and engaging donors."
           action={
@@ -120,19 +125,27 @@ export default function BloodBankEvents() {
           }
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {myEvents.map((ev) => (
-            <EventCard key={ev.id} event={ev}>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => viewEnrollments(ev)}
-              >
-                View enrollments
-              </Button>
-            </EventCard>
-          ))}
-        </div>
+        <>
+          <div className="mb-4 flex items-center gap-1.5 text-sm text-neutral-600">
+            <CalendarDays size={15} strokeWidth={1.8} />
+            {myEvents.length} event{myEvents.length === 1 ? "" : "s"} hosted
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {myEvents.map((ev) => (
+              <EventCard key={ev.id} event={ev}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => viewEnrollments(ev)}
+                >
+                  <Users size={15} strokeWidth={1.9} />
+                  View enrollments
+                </Button>
+              </EventCard>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Create modal */}
@@ -190,20 +203,25 @@ export default function BloodBankEvents() {
         {loadingEnroll ? (
           <Spinner label="Loading enrollments…" />
         ) : enrollments.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-stone-200 px-3 py-8 text-center text-sm text-stone-400">
-            No donors have enrolled yet.
-          </p>
+          <EmptyState
+            icon={Users}
+            title="No enrollments yet"
+            message="No donors have enrolled in this event. Share it to start collecting sign-ups."
+          />
         ) : (
-          <ul className="divide-y divide-stone-100 rounded-lg border border-stone-200">
+          <ul className="divide-y divide-neutral-100 overflow-hidden rounded-xl border border-neutral-200">
             {enrollments.map((en) => (
               <li
                 key={en.id}
-                className="flex items-center justify-between px-3 py-2.5 text-sm"
+                className="flex items-center justify-between gap-3 px-4 py-3 text-sm"
               >
-                <span className="font-medium text-stone-800">
+                <span className="flex items-center gap-2.5 font-semibold text-secondary">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blush-card text-primary">
+                    <UserRound size={16} strokeWidth={1.9} />
+                  </span>
                   Donor #{en.donorId}
                 </span>
-                <span className="text-xs text-stone-400">
+                <span className="text-xs text-neutral-400">
                   {formatDateTime(en.createdAt)}
                 </span>
               </li>

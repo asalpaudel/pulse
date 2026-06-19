@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import { Droplet, HeartPulse, CalendarClock } from "lucide-react";
 import PageHeader from "../../components/PageHeader";
 import Card, { CardHeader, CardBody } from "../../components/ui/Card";
+import StatusCard from "../../components/ui/StatusCard";
+import FeatureCard from "../../components/ui/FeatureCard";
+import StatCard from "../../components/ui/StatCard";
 import { Input } from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Spinner from "../../components/ui/Spinner";
@@ -31,8 +35,7 @@ export default function DonorHistory() {
         const me = await donorsApi.getMyDonorProfile();
         if (!active) return;
         setDonor(me);
-        if (me?.lastDonationDate)
-          setDate(me.lastDonationDate.slice(0, 10));
+        if (me?.lastDonationDate) setDate(me.lastDonationDate.slice(0, 10));
       } catch {
         if (donor?.lastDonationDate)
           setDate(donor.lastDonationDate.slice(0, 10));
@@ -83,69 +86,85 @@ export default function DonorHistory() {
         subtitle="Track your last donation and eligibility"
       />
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader title="Eligibility status" />
-          <CardBody>
-            <div
-              className={`rounded-lg px-4 py-3 ${
-                eligible
-                  ? "bg-emerald-50 text-emerald-800"
-                  : "bg-amber-50 text-amber-800"
-              }`}
-            >
-              <p className="font-semibold">
-                {eligible
-                  ? "You're eligible to donate"
-                  : "Not yet eligible to donate"}
-              </p>
-              <p className="mt-1 text-sm">
-                {donor?.lastDonationDate
-                  ? `Last donation: ${formatDate(donor.lastDonationDate)}`
-                  : "No donation recorded yet."}
-                {nextEligible &&
-                  !eligible &&
-                  ` · Next eligible around ${formatDate(nextEligible.toISOString())}`}
-              </p>
-            </div>
-            <dl className="mt-4 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-stone-500">Blood group</dt>
-                <dd className="font-medium text-stone-900">
-                  {bloodGroupLabel(donor?.bloodGroup)}
-                </dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-stone-500">Availability</dt>
-                <dd className="font-medium text-stone-900">
-                  {donor?.available ? "Available" : "Unavailable"}
-                </dd>
-              </div>
-            </dl>
-          </CardBody>
-        </Card>
+      {/* Stat row */}
+      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+        <StatCard
+          icon={Droplet}
+          tone="red"
+          label="Blood group"
+          value={bloodGroupLabel(donor?.bloodGroup)}
+        />
+        <StatCard
+          icon={CalendarClock}
+          tone="blue"
+          label="Last donation"
+          value={
+            donor?.lastDonationDate ? formatDate(donor.lastDonationDate) : "—"
+          }
+        />
+        <StatCard
+          icon={HeartPulse}
+          tone={eligible ? "green" : "amber"}
+          label="Eligibility"
+          value={eligible ? "Eligible" : "Resting"}
+        />
+      </div>
 
-        <Card>
-          <CardHeader
-            title="Record a donation"
-            subtitle="Update your most recent donation date"
+      <div className="grid gap-6 xl:grid-cols-3">
+        <div className="space-y-6 xl:col-span-2">
+          <StatusCard
+            tone={eligible ? "green" : "amber"}
+            title={
+              eligible
+                ? "You're eligible to donate"
+                : "Not yet eligible to donate"
+            }
+            description={
+              donor?.lastDonationDate
+                ? `Last donation: ${formatDate(donor.lastDonationDate)}${
+                    nextEligible && !eligible
+                      ? ` · Next eligible around ${formatDate(
+                          nextEligible.toISOString(),
+                        )}`
+                      : ""
+                  }`
+                : "No donation recorded yet — record your most recent donation below."
+            }
           />
-          <CardBody>
-            <form onSubmit={save} className="space-y-4">
-              <Input
-                label="Last donation date"
-                type="date"
-                name="lastDonationDate"
-                value={date}
-                max={new Date(mountedAt).toISOString().slice(0, 10)}
-                onChange={(e) => setDate(e.target.value)}
-              />
-              <Button type="submit" loading={saving}>
-                Save
-              </Button>
-            </form>
-          </CardBody>
-        </Card>
+
+          <Card>
+            <CardHeader
+              title="Record a donation"
+              subtitle="Update your most recent donation date"
+            />
+            <CardBody>
+              <form onSubmit={save} className="space-y-4">
+                <Input
+                  label="Last donation date"
+                  type="date"
+                  name="lastDonationDate"
+                  value={date}
+                  max={new Date(mountedAt).toISOString().slice(0, 10)}
+                  onChange={(e) => setDate(e.target.value)}
+                />
+                <Button type="submit" loading={saving}>
+                  Save
+                </Button>
+              </form>
+            </CardBody>
+          </Card>
+        </div>
+
+        <FeatureCard
+          icon={HeartPulse}
+          title="Your Eligibility Status"
+          description="Healthy adults can typically donate whole blood every 90 days."
+          bullets={[
+            "Stay hydrated before and after donating",
+            "A balanced, iron-rich diet speeds recovery",
+            "We'll alert you the moment you're eligible again",
+          ]}
+        />
       </div>
     </div>
   );

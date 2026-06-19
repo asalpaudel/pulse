@@ -1,96 +1,129 @@
 import { NavLink } from "react-router-dom";
+import {
+  LayoutDashboard,
+  TriangleAlert,
+  Droplet,
+  CalendarDays,
+  Clock,
+  User,
+  Search,
+  Landmark,
+  ShieldCheck,
+  Users,
+  Boxes,
+  Settings,
+} from "lucide-react";
+import Logo from "../Logo";
 import { ROLE_LABELS } from "../../lib/constants";
 
 // Role-aware navigation items. Each entry: { to, label, icon }.
+// `icon` is a lucide-react component.
 const NAV = {
   DONOR: [
-    { to: "/donor", label: "Overview", icon: "home" },
-    { to: "/donor/alerts", label: "Emergency Alerts", icon: "alert" },
-    { to: "/donor/requests", label: "Blood Requests", icon: "drop" },
-    { to: "/donor/events", label: "Donation Events", icon: "calendar" },
-    { to: "/donor/history", label: "Donation History", icon: "clock" },
-    { to: "/donor/profile", label: "My Profile", icon: "user" },
+    { to: "/donor", label: "Overview", icon: LayoutDashboard },
+    { to: "/donor/alerts", label: "Emergency Alerts", icon: TriangleAlert },
+    { to: "/donor/requests", label: "Blood Requests", icon: Droplet },
+    { to: "/donor/events", label: "Donation Events", icon: CalendarDays },
+    { to: "/donor/history", label: "Donation History", icon: Clock },
   ],
   HOSPITAL: [
-    { to: "/hospital", label: "Overview", icon: "home" },
-    { to: "/hospital/requests", label: "My Requests", icon: "drop" },
-    { to: "/hospital/donors", label: "Find Donors", icon: "search" },
-    { to: "/hospital/bloodbanks", label: "Find Blood Banks", icon: "bank" },
-    { to: "/hospital/profile", label: "Hospital Profile", icon: "user" },
+    { to: "/hospital", label: "Overview", icon: LayoutDashboard },
+    { to: "/hospital/requests", label: "My Requests", icon: Droplet },
+    { to: "/hospital/donors", label: "Find Donors", icon: Search },
+    { to: "/hospital/bloodbanks", label: "Find Blood Banks", icon: Landmark },
   ],
   BLOOD_BANK: [
-    { to: "/bloodbank", label: "Overview", icon: "home" },
-    { to: "/bloodbank/stock", label: "Blood Stock", icon: "drop" },
-    { to: "/bloodbank/requests", label: "Open Requests", icon: "alert" },
-    { to: "/bloodbank/events", label: "Donation Events", icon: "calendar" },
-    { to: "/bloodbank/profile", label: "Blood Bank Profile", icon: "user" },
+    { to: "/bloodbank", label: "Overview", icon: LayoutDashboard },
+    { to: "/bloodbank/stock", label: "Blood Stock", icon: Boxes },
+    { to: "/bloodbank/requests", label: "Open Requests", icon: TriangleAlert },
+    { to: "/bloodbank/events", label: "Donation Events", icon: CalendarDays },
   ],
   ADMIN: [
-    { to: "/admin", label: "Overview", icon: "home" },
-    { to: "/admin/verify", label: "Verifications", icon: "check" },
-    { to: "/admin/users", label: "Users", icon: "users" },
+    { to: "/admin", label: "Overview", icon: LayoutDashboard },
+    { to: "/admin/verify", label: "Verifications", icon: ShieldCheck },
+    { to: "/admin/users", label: "Users", icon: Users },
   ],
 };
 
-const ICONS = {
-  home: "M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V10",
-  alert: "M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z",
-  drop: "M12 2.69l5.66 5.66a8 8 0 11-11.31 0z",
-  calendar: "M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
-  clock: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
-  user: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
-  search: "M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z",
-  bank: "M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3",
-  check: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
-  users: "M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6 0a4 4 0 10-3-6.65",
+// Profile / Settings links pinned to the bottom of the sidebar, per role.
+// Settings has no dedicated route in the app yet — it points at the profile page
+// so the link is never dead.
+const FOOTER_NAV = {
+  DONOR: { profile: "/donor/profile" },
+  HOSPITAL: { profile: "/hospital/profile" },
+  BLOOD_BANK: { profile: "/bloodbank/profile" },
+  ADMIN: { profile: "/admin" },
 };
 
-function NavIcon({ name }) {
+const ROLE_SUBTITLE = {
+  DONOR: "Donor Portal",
+  HOSPITAL: "Hospital Portal",
+  BLOOD_BANK: "Blood Bank Portal",
+  ADMIN: "Admin Portal",
+};
+
+function navItemClass({ isActive }) {
+  return [
+    "flex items-center gap-3 rounded-lg border-l-4 px-3 py-2.5 text-sm font-medium transition",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-blush-card",
+    isActive
+      ? "border-primary bg-white text-primary shadow-sm"
+      : "border-transparent text-neutral-600 hover:bg-blush-soft",
+  ].join(" ");
+}
+
+function NavRow({ to, label, icon: Icon, end, onNavigate }) {
   return (
-    <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
-      <path strokeLinecap="round" strokeLinejoin="round" d={ICONS[name]} />
-    </svg>
+    <NavLink to={to} end={end} onClick={onNavigate} className={navItemClass}>
+      <Icon size={19} strokeWidth={1.8} className="shrink-0" />
+      <span className="truncate">{label}</span>
+    </NavLink>
   );
 }
 
 export default function Sidebar({ role, open, onNavigate }) {
   const items = NAV[role] || [];
+  const footer = FOOTER_NAV[role] || {};
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-stone-200 bg-white transition-transform duration-200 lg:static lg:translate-x-0 ${
+      className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-neutral-200 bg-blush-card transition-transform duration-200 lg:static lg:translate-x-0 ${
         open ? "translate-x-0" : "-translate-x-full"
       }`}
     >
-      <div className="px-4 py-5">
-        <p className="px-3 text-xs font-semibold uppercase tracking-wider text-stone-400">
-          {ROLE_LABELS[role]}
-        </p>
+      {/* Brand */}
+      <div className="px-5 py-5">
+        <Logo withText subtitle={ROLE_SUBTITLE[role] || ROLE_LABELS[role]} />
       </div>
-      <nav className="flex-1 space-y-1 px-3">
+
+      {/* Primary nav */}
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-2">
         {items.map((item) => (
-          <NavLink
+          <NavRow
             key={item.to}
-            to={item.to}
+            {...item}
             end={item.to.split("/").length === 2}
-            onClick={onNavigate}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                isActive
-                  ? "bg-pulse/10 text-pulse"
-                  : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
-              }`
-            }
-          >
-            <NavIcon name={item.icon} />
-            {item.label}
-          </NavLink>
+            onNavigate={onNavigate}
+          />
         ))}
       </nav>
-      <div className="border-t border-stone-100 px-5 py-4">
-        <p className="text-xs text-stone-400">
-          Pulse — real-time blood coordination
-        </p>
+
+      {/* Pinned footer — Profile + Settings */}
+      <div className="space-y-1 border-t border-neutral-200 px-3 py-3">
+        {footer.profile && (
+          <NavRow
+            to={footer.profile}
+            label="Profile"
+            icon={User}
+            onNavigate={onNavigate}
+          />
+        )}
+        <NavRow
+          to={footer.profile || "#"}
+          label="Settings"
+          icon={Settings}
+          onNavigate={onNavigate}
+        />
       </div>
     </aside>
   );

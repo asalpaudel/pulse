@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import { Filter, Inbox, Zap } from "lucide-react";
 import PageHeader from "../../components/PageHeader";
 import RequestCard from "../../components/RequestCard";
 import Button from "../../components/ui/Button";
-import { Select } from "../../components/ui/Input";
+import FilterChip from "../../components/ui/FilterChip";
 import Spinner, { EmptyState } from "../../components/ui/Spinner";
 import { useToast } from "../../context/ToastContext";
 import * as requestsApi from "../../api/requests";
@@ -14,6 +15,7 @@ export default function BloodBankRequests() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("OPEN");
+  const [onlyUrgent, setOnlyUrgent] = useState(false);
   const [responding, setResponding] = useState(null);
   const [responded, setResponded] = useState(() => new Set());
 
@@ -49,37 +51,60 @@ export default function BloodBankRequests() {
     }
   };
 
+  const visible = requests.filter((r) => {
+    if (onlyUrgent && r.urgency !== "EMERGENCY") return false;
+    return true;
+  });
+
   return (
     <div>
       <PageHeader
         title="Open Requests"
-        subtitle="Respond to hospital blood requests with your stock"
-        action={
-          <Select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-36"
-          >
-            <option value="">All statuses</option>
-            {REQUEST_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </Select>
-        }
+        subtitle="Respond to hospital blood requests with your live stock"
       />
+
+      {/* Filter chips */}
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <FilterChip
+          active={onlyUrgent}
+          icon={Zap}
+          onClick={() => setOnlyUrgent((v) => !v)}
+        >
+          Emergency only
+        </FilterChip>
+        <span className="mx-1 h-5 w-px bg-neutral-200" />
+        <FilterChip
+          active={statusFilter === ""}
+          onClick={() => setStatusFilter("")}
+        >
+          All statuses
+        </FilterChip>
+        {REQUEST_STATUSES.map((s) => (
+          <FilterChip
+            key={s}
+            active={statusFilter === s}
+            onClick={() => setStatusFilter(s)}
+          >
+            {s}
+          </FilterChip>
+        ))}
+        <span className="ml-auto inline-flex items-center gap-1.5 text-sm text-neutral-600">
+          <Filter size={15} strokeWidth={1.8} />
+          {visible.length} result{visible.length === 1 ? "" : "s"}
+        </span>
+      </div>
 
       {loading ? (
         <Spinner />
-      ) : requests.length === 0 ? (
+      ) : visible.length === 0 ? (
         <EmptyState
+          icon={Inbox}
           title="No requests"
           message="There are no blood requests matching your filter right now."
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {requests.map((r) => {
+          {visible.map((r) => {
             const done = responded.has(r.id);
             const canRespond = r.status === "OPEN" || r.status === "MATCHED";
             return (
@@ -87,6 +112,7 @@ export default function BloodBankRequests() {
                 {canRespond ? (
                   <Button
                     size="sm"
+                    className="w-full"
                     variant={done ? "outline" : "primary"}
                     disabled={done}
                     loading={responding === r.id}
@@ -95,7 +121,7 @@ export default function BloodBankRequests() {
                     {done ? "Offer sent" : "Offer to fulfil"}
                   </Button>
                 ) : (
-                  <span className="text-xs text-stone-400">
+                  <span className="block text-center text-xs text-neutral-400">
                     Closed for responses
                   </span>
                 )}

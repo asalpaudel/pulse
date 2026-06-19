@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { ClipboardList, Filter } from "lucide-react";
 import PageHeader from "../../components/PageHeader";
 import RequestCard from "../../components/RequestCard";
 import CreateRequestModal from "../../components/CreateRequestModal";
 import RequestDetailModal from "../../components/RequestDetailModal";
 import Button from "../../components/ui/Button";
-import { Select } from "../../components/ui/Input";
+import FilterChip from "../../components/ui/FilterChip";
 import Spinner, { EmptyState } from "../../components/ui/Spinner";
 import { useToast } from "../../context/ToastContext";
 import * as requestsApi from "../../api/requests";
@@ -53,28 +54,41 @@ export default function HospitalRequests() {
         title="My Requests"
         subtitle="Create and track your hospital's blood requests"
         action={
-          <div className="flex items-center gap-2">
-            <Select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-36"
-            >
-              <option value="">All statuses</option>
-              {REQUEST_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </Select>
-            <Button onClick={() => setCreateOpen(true)}>+ New request</Button>
-          </div>
+          <Button onClick={() => setCreateOpen(true)}>
+            <ClipboardList size={16} strokeWidth={1.9} />
+            New request
+          </Button>
         }
       />
+
+      {/* Filter chips */}
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <FilterChip
+          active={statusFilter === ""}
+          onClick={() => setStatusFilter("")}
+        >
+          All statuses
+        </FilterChip>
+        {REQUEST_STATUSES.map((s) => (
+          <FilterChip
+            key={s}
+            active={statusFilter === s}
+            onClick={() => setStatusFilter(s)}
+          >
+            {s}
+          </FilterChip>
+        ))}
+        <span className="ml-auto inline-flex items-center gap-1.5 text-sm text-neutral-600">
+          <Filter size={15} strokeWidth={1.8} />
+          {requests.length} result{requests.length === 1 ? "" : "s"}
+        </span>
+      </div>
 
       {loading ? (
         <Spinner />
       ) : requests.length === 0 ? (
         <EmptyState
+          icon={ClipboardList}
           title="No requests yet"
           message="Create an emergency or routine blood request to start coordinating fulfillment."
           action={
@@ -90,6 +104,7 @@ export default function HospitalRequests() {
               <Button
                 size="sm"
                 variant="secondary"
+                className="w-full"
                 onClick={() => setDetail(r)}
               >
                 View responses & status

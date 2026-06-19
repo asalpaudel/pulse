@@ -1,13 +1,28 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import PageHeader, { StatCard } from "../../components/PageHeader";
-import Card, { CardHeader, CardBody } from "../../components/ui/Card";
+import {
+  Droplet,
+  MapPin,
+  CalendarClock,
+  HeartPulse,
+  Bell,
+  ShieldCheck,
+  CalendarDays,
+  Activity,
+} from "lucide-react";
+import HeroCard from "../../components/ui/HeroCard";
+import StatCard from "../../components/ui/StatCard";
+import SectionHeader from "../../components/ui/SectionHeader";
+import Card, { CardBody } from "../../components/ui/Card";
+import StatusCard from "../../components/ui/StatusCard";
+import FeatureCard from "../../components/ui/FeatureCard";
 import Button from "../../components/ui/Button";
-import Badge from "../../components/ui/Badge";
 import Spinner from "../../components/ui/Spinner";
+import { EmptyState } from "../../components/ui/Spinner";
 import RequestCard from "../../components/RequestCard";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
+import { useNotifications } from "../../context/NotificationsContext";
 import * as donorsApi from "../../api/donors";
 import * as requestsApi from "../../api/requests";
 import { bloodGroupLabel, formatDate } from "../../lib/constants";
@@ -15,6 +30,7 @@ import { bloodGroupLabel, formatDate } from "../../lib/constants";
 export default function DonorOverview() {
   const { profile, setProfile } = useAuth();
   const { toast } = useToast();
+  const { notifications, unreadCount } = useNotifications();
   const [donor, setDonor] = useState(profile);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -68,108 +84,215 @@ export default function DonorOverview() {
   const matching = requests.filter(
     (r) => !donor?.bloodGroup || r.bloodGroup === donor.bloodGroup,
   );
+  const urgent = matching.filter((r) => r.urgency === "EMERGENCY");
+  const firstName = donor?.fullName ? donor.fullName.split(" ")[0] : null;
+
+  const chips = [
+    { icon: Droplet, label: bloodGroupLabel(donor?.bloodGroup) },
+    {
+      icon: MapPin,
+      label: donor?.address || "Location not set",
+    },
+    {
+      icon: CalendarClock,
+      label: donor?.lastDonationDate
+        ? `Last donated ${formatDate(donor.lastDonationDate)}`
+        : "No donation recorded",
+    },
+  ];
 
   return (
     <div>
-      <PageHeader
-        title={`Welcome${donor?.fullName ? `, ${donor.fullName.split(" ")[0]}` : ""}`}
-        subtitle="Your donor dashboard"
+      <HeroCard
+        greeting={`Welcome back${firstName ? `, ${firstName}` : ""}`}
+        subtitle="Here's what's happening across the Pulse network today."
+        chips={chips}
+        action={
+          <Button
+            variant={donor?.available ? "outline" : "primary"}
+            onClick={toggleAvailability}
+            loading={toggling}
+          >
+            {donor?.available ? "Go unavailable" : "Go available"}
+          </Button>
+        }
       />
 
-      {/* Availability banner */}
-      <Card
-        className={`mb-6 flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center ${
-          donor?.available ? "border-emerald-200 bg-emerald-50" : ""
-        }`}
-      >
-        <div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`h-2.5 w-2.5 rounded-full ${
-                donor?.available ? "bg-emerald-500" : "bg-stone-400"
-              }`}
-            />
-            <p className="font-semibold text-stone-900">
-              {donor?.available
-                ? "You're available to donate"
-                : "You're currently unavailable"}
-            </p>
-          </div>
-          <p className="mt-1 text-sm text-stone-500">
-            {donor?.available
-              ? "You'll receive emergency alerts matched to your blood group and location."
-              : "Turn this on to start receiving matched emergency alerts."}
-          </p>
-        </div>
-        <Button
-          variant={donor?.available ? "outline" : "primary"}
-          onClick={toggleAvailability}
-          loading={toggling}
-        >
-          {donor?.available ? "Go unavailable" : "Go available"}
-        </Button>
-      </Card>
-
-      <div className="grid gap-4 sm:grid-cols-3">
+      {/* 4-up stat row */}
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
+          icon={Droplet}
+          tone="red"
           label="Blood group"
           value={bloodGroupLabel(donor?.bloodGroup)}
-          tone="red"
         />
         <StatCard
-          label="Open matching requests"
-          value={matching.length}
+          icon={Activity}
           tone="amber"
+          label="Matching requests"
+          value={matching.length}
+          hint={`${urgent.length} urgent`}
         />
         <StatCard
-          label="Last donation"
-          value={donor?.lastDonationDate ? formatDate(donor.lastDonationDate) : "—"}
+          icon={Bell}
+          tone="blue"
+          label="Unread alerts"
+          value={unreadCount}
+        />
+        <StatCard
+          icon={HeartPulse}
+          tone={donor?.available ? "green" : "neutral"}
+          label="Availability"
+          value={donor?.available ? "Active" : "Off"}
         />
       </div>
 
-      <div className="mt-6">
-        <Card>
-          <CardHeader
-            title="Requests matching your blood group"
-            subtitle={`${matching.length} open`}
-            action={
-              <Link to="/donor/requests">
-                <Button variant="ghost" size="sm">
-                  View all
-                </Button>
-              </Link>
-            }
-          />
-          <CardBody>
-            {matching.length === 0 ? (
-              <p className="py-6 text-center text-sm text-stone-400">
-                No open requests matching {bloodGroupLabel(donor?.bloodGroup)}{" "}
-                right now.
-              </p>
+      {/* Main + right rail */}
+      <div className="mt-8 grid gap-6 xl:grid-cols-3">
+        <div className="space-y-8 xl:col-span-2">
+          {/* Urgent blood requests */}
+          <section>
+            <SectionHeader
+              title="Urgent Blood Requests"
+              subtitle="Emergency requests matching your blood group"
+              to="/donor/requests"
+            />
+            {urgent.length === 0 ? (
+              <Card>
+                <EmptyState
+                  icon={ShieldCheck}
+                  title="No urgent requests right now"
+                  message={`There are no emergency requests matching ${bloodGroupLabel(
+                    donor?.bloodGroup,
+                  )} at the moment.`}
+                />
+              </Card>
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {matching.slice(0, 4).map((r) => (
-                  <RequestCard key={r.id} request={r}>
-                    <Link to="/donor/requests">
-                      <Button size="sm" variant="secondary">
-                        Respond
+              <div className="grid gap-4 sm:grid-cols-2">
+                {urgent.slice(0, 4).map((r, i) => (
+                  <RequestCard key={r.id} request={r} elevated={i === 0}>
+                    <Link to="/donor/requests" className="block">
+                      <Button size="sm" className="w-full">
+                        Apply to Donate
                       </Button>
                     </Link>
                   </RequestCard>
                 ))}
               </div>
             )}
-          </CardBody>
-        </Card>
-      </div>
+          </section>
 
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Link to="/donor/alerts">
-          <Badge tone="red">Emergency alerts feed →</Badge>
-        </Link>
-        <Link to="/donor/events">
-          <Badge tone="blue">Browse donation events →</Badge>
-        </Link>
+          {/* All matching requests */}
+          <section>
+            <SectionHeader
+              title="More Requests For You"
+              subtitle={`${matching.length} open request${
+                matching.length === 1 ? "" : "s"
+              } matching your group`}
+              to="/donor/requests"
+            />
+            {matching.length === 0 ? (
+              <Card>
+                <EmptyState
+                  icon={Droplet}
+                  title="Nothing matching yet"
+                  message="New requests matching your blood group will appear here."
+                />
+              </Card>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {matching.slice(0, 4).map((r) => (
+                  <RequestCard key={r.id} request={r}>
+                    <Link to="/donor/requests" className="block">
+                      <Button size="sm" variant="outline" className="w-full">
+                        View Details
+                      </Button>
+                    </Link>
+                  </RequestCard>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* Right rail */}
+        <div className="space-y-6">
+          <StatusCard
+            tone={donor?.available ? "green" : "neutral"}
+            title={
+              donor?.available
+                ? "You're available to donate"
+                : "You're currently unavailable"
+            }
+            description={
+              donor?.available
+                ? "You'll receive emergency alerts matched to your blood group and location."
+                : "Turn this on to start receiving matched emergency alerts."
+            }
+            action={
+              <Button
+                size="sm"
+                variant={donor?.available ? "outline" : "primary"}
+                onClick={toggleAvailability}
+                loading={toggling}
+              >
+                {donor?.available ? "Go unavailable" : "Go available"}
+              </Button>
+            }
+          />
+
+          <Card>
+            <CardBody>
+              <div className="flex items-center gap-2">
+                <Bell size={18} strokeWidth={1.8} className="text-primary" />
+                <h3 className="text-base font-bold text-secondary">
+                  Recent Alerts
+                </h3>
+              </div>
+              {notifications.length === 0 ? (
+                <p className="mt-3 text-sm text-neutral-600">
+                  No alerts yet. Matched emergency requests will show up here.
+                </p>
+              ) : (
+                <ul className="mt-3 space-y-3">
+                  {notifications.slice(0, 4).map((n) => (
+                    <li key={n.id} className="flex items-start gap-2.5">
+                      <span
+                        className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${
+                          n.read ? "bg-neutral-300" : "bg-primary"
+                        }`}
+                      />
+                      <p className="text-sm text-neutral-700">{n.message}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Link to="/donor/alerts" className="mt-4 block">
+                <Button variant="outline" size="sm" className="w-full">
+                  View all alerts
+                </Button>
+              </Link>
+            </CardBody>
+          </Card>
+
+          <FeatureCard
+            icon={HeartPulse}
+            title="Your Safety Matters"
+            description="Every donation is screened and handled by verified medical professionals."
+            bullets={[
+              "Sterile, single-use equipment only",
+              "Free mini health check-up each visit",
+              "Recover with a snack and 15 minutes rest",
+            ]}
+          >
+            <Link to="/donor/events">
+              <Button variant="secondary" size="sm">
+                <CalendarDays size={15} strokeWidth={1.9} />
+                Find a donation event
+              </Button>
+            </Link>
+          </FeatureCard>
+        </div>
       </div>
     </div>
   );

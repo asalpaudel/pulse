@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { MotionConfig } from "framer-motion";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
 import { NotificationsProvider } from "./context/NotificationsContext";
@@ -59,6 +60,7 @@ function RoleDashboard({ role }) {
 export default function App() {
   return (
     <BrowserRouter>
+      <MotionConfig reducedMotion="user">
       <ToastProvider>
         <AuthProvider>
           <Routes>
@@ -125,6 +127,7 @@ export default function App() {
           <Toaster />
         </AuthProvider>
       </ToastProvider>
+      </MotionConfig>
     </BrowserRouter>
   );
 }

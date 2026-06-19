@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Droplet, Hospital, Building2, Check, AlertCircle } from "lucide-react";
 import AuthShell from "../components/AuthShell";
 import { Input, Select } from "../components/ui/Input";
 import Button from "../components/ui/Button";
@@ -10,12 +11,13 @@ import { BLOOD_GROUPS, bloodGroupLabel } from "../lib/constants";
 
 // Selectable roles at registration — ADMIN accounts are provisioned, not self-served.
 const REGISTERABLE_ROLES = [
-  { value: "DONOR", label: "Donor", desc: "Give blood, get matched alerts" },
-  { value: "HOSPITAL", label: "Hospital", desc: "Post requests, find donors" },
+  { value: "DONOR", label: "Donor", desc: "Give blood, get matched alerts", icon: Droplet },
+  { value: "HOSPITAL", label: "Hospital", desc: "Post requests, find donors", icon: Hospital },
   {
     value: "BLOOD_BANK",
     label: "Blood Bank",
     desc: "Manage stock, run events",
+    icon: Building2,
   },
 ];
 
@@ -111,7 +113,7 @@ export default function Register() {
         step === 1 ? (
           <>
             Already have an account?{" "}
-            <Link to="/login" className="font-medium text-pulse hover:underline">
+            <Link to="/login" className="font-medium text-tertiary hover:underline">
               Sign in
             </Link>
           </>
@@ -119,51 +121,105 @@ export default function Register() {
           <button
             type="button"
             onClick={() => setStep(1)}
-            className="font-medium text-pulse hover:underline"
+            className="font-medium text-tertiary hover:underline"
           >
             ← Back to account details
           </button>
         )
       }
     >
+      {/* Step indicator */}
+      <div className="mb-6 flex items-center gap-3" aria-hidden="true">
+        {[1, 2].map((s) => (
+          <div key={s} className="flex flex-1 items-center gap-3">
+            <span
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition ${
+                step >= s
+                  ? "bg-primary text-white"
+                  : "bg-neutral-100 text-neutral-500"
+              }`}
+            >
+              {step > s ? <Check size={14} strokeWidth={3} /> : s}
+            </span>
+            <span
+              className={`text-xs font-medium ${
+                step >= s ? "text-secondary" : "text-neutral-400"
+              }`}
+            >
+              {s === 1 ? "Account" : "Profile"}
+            </span>
+            {s === 1 && (
+              <span
+                className={`h-px flex-1 transition ${
+                  step > 1 ? "bg-primary/40" : "bg-neutral-200"
+                }`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+
       {error && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
+        <div className="mb-4 flex items-start gap-2 rounded-xl border border-primary-200 bg-primary-50 px-3 py-2.5 text-sm text-primary-700">
+          <AlertCircle size={16} strokeWidth={2} className="mt-0.5 shrink-0" />
+          <span>{error}</span>
         </div>
       )}
 
       {step === 1 && (
         <form onSubmit={goToProfile} className="space-y-4">
           <div className="space-y-2">
-            <p className="text-sm font-medium text-stone-700">I am a…</p>
-            <div className="grid gap-2">
-              {REGISTERABLE_ROLES.map((r) => (
-                <label
-                  key={r.value}
-                  className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition ${
-                    role === r.value
-                      ? "border-pulse bg-pulse/5"
-                      : "border-stone-300 hover:border-stone-400"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="role"
-                    value={r.value}
-                    checked={role === r.value}
-                    onChange={() => setRole(r.value)}
-                    className="accent-pulse"
-                  />
-                  <span>
-                    <span className="block text-sm font-medium text-stone-900">
-                      {r.label}
+            <p className="text-sm font-medium text-secondary">I am a…</p>
+            <div className="grid gap-2.5">
+              {REGISTERABLE_ROLES.map((r) => {
+                const selected = role === r.value;
+                const Icon = r.icon;
+                return (
+                  <label
+                    key={r.value}
+                    className={`group flex cursor-pointer items-center gap-3.5 rounded-xl border px-4 py-3 transition ${
+                      selected
+                        ? "border-primary bg-primary-50 shadow-sm ring-1 ring-primary/20"
+                        : "border-neutral-200 bg-white hover:border-primary-200 hover:bg-blush-soft"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="role"
+                      value={r.value}
+                      checked={selected}
+                      onChange={() => setRole(r.value)}
+                      className="sr-only"
+                    />
+                    <span
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition ${
+                        selected
+                          ? "bg-primary text-white"
+                          : "bg-neutral-100 text-neutral-500 group-hover:text-primary"
+                      }`}
+                    >
+                      <Icon size={18} strokeWidth={1.9} />
                     </span>
-                    <span className="block text-xs text-stone-500">
-                      {r.desc}
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-secondary">
+                        {r.label}
+                      </span>
+                      <span className="block text-xs text-neutral-600">
+                        {r.desc}
+                      </span>
                     </span>
-                  </span>
-                </label>
-              ))}
+                    <span
+                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
+                        selected
+                          ? "border-primary bg-primary text-white"
+                          : "border-neutral-300"
+                      }`}
+                    >
+                      {selected && <Check size={12} strokeWidth={3} />}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
           </div>
 
@@ -260,7 +316,7 @@ export default function Register() {
                 placeholder="01-XXXXXXX"
                 required
               />
-              <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
                 Institutional accounts require administrator verification
                 before gaining full access.
               </p>

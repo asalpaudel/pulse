@@ -1,18 +1,22 @@
 import { useState } from "react";
+import {
+  MapPin,
+  Phone,
+  Map as MapIcon,
+  List,
+  Search,
+  Filter,
+  Users,
+} from "lucide-react";
 import PageHeader from "../../components/PageHeader";
 import Card, { CardBody } from "../../components/ui/Card";
-import { Input, Select } from "../../components/ui/Input";
+import { Input } from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
-import Badge from "../../components/ui/Badge";
+import FilterChip from "../../components/ui/FilterChip";
+import Toggle from "../../components/ui/Toggle";
+import BloodGroupBadge from "../../components/ui/BloodGroupBadge";
+import StatusPill from "../../components/ui/StatusPill";
 import Spinner, { EmptyState } from "../../components/ui/Spinner";
-import {
-  Table,
-  THead,
-  TBody,
-  TR,
-  TD,
-  EmptyRow,
-} from "../../components/ui/Table";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import * as donorsApi from "../../api/donors";
@@ -33,11 +37,12 @@ export default function HospitalDonorSearch() {
   });
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [view, setView] = useState("list");
 
   const set = (k, v) => setParams((p) => ({ ...p, [k]: v }));
 
   const search = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
     setLoading(true);
     try {
       const data = await donorsApi.searchDonors({
@@ -60,49 +65,65 @@ export default function HospitalDonorSearch() {
       <PageHeader
         title="Find Donors"
         subtitle="Proximity search for available donors by blood group"
+        action={
+          <Toggle
+            options={[
+              { value: "list", label: "List", icon: List },
+              { value: "map", label: "Map", icon: MapIcon },
+            ]}
+            value={view}
+            onChange={setView}
+          />
+        }
       />
 
+      {/* Search controls */}
       <Card className="mb-6">
         <CardBody>
-          <form
-            onSubmit={search}
-            className="grid items-end gap-4 sm:grid-cols-2 lg:grid-cols-5"
-          >
-            <Select
-              label="Blood group"
-              value={params.bloodGroup}
-              onChange={(e) => set("bloodGroup", e.target.value)}
-            >
-              {BLOOD_GROUPS.map((bg) => (
-                <option key={bg} value={bg}>
-                  {bloodGroupLabel(bg)} ({bg})
-                </option>
-              ))}
-            </Select>
-            <Input
-              label="Latitude"
-              type="number"
-              step="any"
-              value={params.lat}
-              onChange={(e) => set("lat", e.target.value)}
-            />
-            <Input
-              label="Longitude"
-              type="number"
-              step="any"
-              value={params.lng}
-              onChange={(e) => set("lng", e.target.value)}
-            />
-            <Input
-              label="Radius (km)"
-              type="number"
-              min="1"
-              value={params.radiusKm}
-              onChange={(e) => set("radiusKm", e.target.value)}
-            />
-            <Button type="submit" loading={loading}>
-              Search donors
-            </Button>
+          <form onSubmit={search} className="space-y-4">
+            <div>
+              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-600">
+                Blood group
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {BLOOD_GROUPS.map((bg) => (
+                  <FilterChip
+                    key={bg}
+                    active={params.bloodGroup === bg}
+                    onClick={() => set("bloodGroup", bg)}
+                  >
+                    {bloodGroupLabel(bg)}
+                  </FilterChip>
+                ))}
+              </div>
+            </div>
+            <div className="grid items-end gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <Input
+                label="Latitude"
+                type="number"
+                step="any"
+                value={params.lat}
+                onChange={(e) => set("lat", e.target.value)}
+              />
+              <Input
+                label="Longitude"
+                type="number"
+                step="any"
+                value={params.lng}
+                onChange={(e) => set("lng", e.target.value)}
+              />
+              <Input
+                label="Radius (km)"
+                type="number"
+                min="1"
+                value={params.radiusKm}
+                onChange={(e) => set("radiusKm", e.target.value)}
+              />
+              <Button type="submit" loading={loading}>
+                <Search size={16} strokeWidth={1.9} />
+                Search donors
+              </Button>
+            </div>
           </form>
         </CardBody>
       </Card>
@@ -111,45 +132,84 @@ export default function HospitalDonorSearch() {
         <Spinner label="Searching donors…" />
       ) : results === null ? (
         <EmptyState
+          icon={Search}
           title="Search for donors"
-          message="Set a blood group and radius, then run a proximity search to find available donors near you."
+          message="Pick a blood group and radius, then run a proximity search to find available donors near you."
         />
-      ) : (
+      ) : view === "map" ? (
         <Card>
-          <Table>
-            <THead columns={["Donor", "Blood group", "Phone", "Address", "Status"]} />
-            <TBody>
-              {results.length === 0 ? (
-                <EmptyRow
-                  colSpan={5}
-                  message="No donors found within that radius."
-                />
-              ) : (
-                results.map((d) => (
-                  <TR key={d.id}>
-                    <TD className="font-medium text-stone-900">
-                      {d.fullName}
-                    </TD>
-                    <TD>
-                      <span className="font-semibold text-pulse">
-                        {bloodGroupLabel(d.bloodGroup)}
-                      </span>
-                    </TD>
-                    <TD>{d.phone || "—"}</TD>
-                    <TD className="text-stone-500">{d.address || "—"}</TD>
-                    <TD>
-                      {d.available ? (
-                        <Badge tone="green">Available</Badge>
-                      ) : (
-                        <Badge tone="slate">Unavailable</Badge>
-                      )}
-                    </TD>
-                  </TR>
-                ))
-              )}
-            </TBody>
-          </Table>
+          <div className="flex h-80 flex-col items-center justify-center gap-2 rounded-2xl bg-blush-soft text-center">
+            <MapIcon size={28} strokeWidth={1.6} className="text-primary" />
+            <p className="text-sm font-semibold text-secondary">
+              Map view coming soon
+            </p>
+            <p className="max-w-sm text-sm text-neutral-600">
+              {results.length} donor{results.length === 1 ? "" : "s"} found
+              within {params.radiusKm}km. Switch to List view to see details.
+            </p>
+          </div>
         </Card>
+      ) : (
+        <>
+          <div className="mb-4 flex items-center gap-1.5 text-sm text-neutral-600">
+            <Filter size={15} strokeWidth={1.8} />
+            {results.length} donor{results.length === 1 ? "" : "s"} within{" "}
+            {params.radiusKm}km
+          </div>
+          {results.length === 0 ? (
+            <EmptyState
+              icon={Users}
+              title="No donors found"
+              message="No available donors within that radius. Try widening your search."
+            />
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {results.map((d) => (
+                <Card key={d.id} className="flex flex-col p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <BloodGroupBadge group={d.bloodGroup} size="md" />
+                    <StatusPill
+                      status={d.available ? "AVAILABLE" : "UNAVAILABLE"}
+                    />
+                  </div>
+                  <p className="mt-3 font-bold text-secondary">
+                    {d.fullName || "Donor"}
+                  </p>
+                  <div className="mt-3 space-y-1.5 text-sm text-neutral-600">
+                    {d.distanceKm != null && (
+                      <p className="flex items-center gap-2">
+                        <MapPin
+                          size={16}
+                          strokeWidth={1.8}
+                          className="text-neutral-400"
+                        />
+                        {Number(d.distanceKm).toFixed(1)}km away
+                      </p>
+                    )}
+                    <p className="flex items-center gap-2">
+                      <Phone
+                        size={16}
+                        strokeWidth={1.8}
+                        className="text-neutral-400"
+                      />
+                      {d.phone || "—"}
+                    </p>
+                    {d.address && (
+                      <p className="flex items-center gap-2">
+                        <MapPin
+                          size={16}
+                          strokeWidth={1.8}
+                          className="text-neutral-400"
+                        />
+                        {d.address}
+                      </p>
+                    )}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

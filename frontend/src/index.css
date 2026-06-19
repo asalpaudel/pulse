@@ -2,9 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body,
-#root {
-  margin: 0;
-  min-height: 100vh;
+@layer base {
+  html,
+  body,
+  #root {
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  body {
+    font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+    background-color: #f5e1dd; /* blush.page */
+    color: #382d2c; /* neutral.800 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-weight: 700;
+    color: #102a43; /* secondary navy */
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }

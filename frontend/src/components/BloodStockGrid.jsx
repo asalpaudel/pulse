@@ -21,25 +21,25 @@ export default function BloodStockGrid({ stock = [], compact = false }) {
             key={bg}
             className={`rounded-lg border px-2 py-3 text-center ${
               empty
-                ? "border-stone-200 bg-stone-50"
-                : "border-pulse/20 bg-pulse/5"
+                ? "border-neutral-200 bg-blush-soft"
+                : "border-primary/20 bg-primary/5"
             }`}
           >
             <p
               className={`text-sm font-bold ${
-                empty ? "text-stone-400" : "text-pulse"
+                empty ? "text-neutral-400" : "text-primary"
               }`}
             >
               {bloodGroupLabel(bg)}
             </p>
             <p
               className={`mt-1 text-lg font-bold ${
-                empty ? "text-stone-300" : "text-stone-900"
+                empty ? "text-neutral-300" : "text-secondary"
               }`}
             >
               {units}
             </p>
-            <p className="text-[10px] uppercase tracking-wide text-stone-400">
+            <p className="text-[10px] uppercase tracking-wide text-neutral-400">
               units
             </p>
           </div>

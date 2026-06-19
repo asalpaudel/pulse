@@ -5,6 +5,7 @@ import { Input } from "./ui/Input";
 import Button from "./ui/Button";
 import LocationFields from "./LocationFields";
 import Spinner from "./ui/Spinner";
+import StatusCard from "./ui/StatusCard";
 import { VerifiedPill } from "./ui/StatusPill";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -76,10 +77,21 @@ export default function InstitutionProfile({ kind, fetchFn, updateFn }) {
         subtitle={`Manage your ${kind.toLowerCase()} details`}
       />
 
-      {!verified && (
-        <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          <span className="font-semibold">Verification pending.</span> An
-          administrator must verify this account before it gains full access.
+      {!verified ? (
+        <div className="mb-6">
+          <StatusCard
+            tone="amber"
+            title="Verification pending"
+            description="An administrator must verify this account before it gains full access."
+          />
+        </div>
+      ) : (
+        <div className="mb-6">
+          <StatusCard
+            tone="green"
+            title="Account verified"
+            description={`This ${kind.toLowerCase()} account is verified and has full access.`}
+          />
         </div>
       )}
 
