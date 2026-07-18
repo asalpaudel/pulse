@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Users,
   Boxes,
+  MessageSquare,
   Settings,
 } from "lucide-react";
 import Logo from "../Logo";
@@ -28,6 +29,7 @@ const NAV = {
   ],
   HOSPITAL: [
     { to: "/hospital", label: "Overview", icon: LayoutDashboard },
+    { to: "/donor/messages", label: "Messages", icon: MessageSquare },
     { to: "/hospital/requests", label: "My Requests", icon: Droplet },
     { to: "/hospital/donors", label: "Find Donors", icon: Search },
     { to: "/hospital/bloodbanks", label: "Find Blood Banks", icon: Landmark },
@@ -35,6 +37,7 @@ const NAV = {
   BLOOD_BANK: [
     { to: "/bloodbank", label: "Overview", icon: LayoutDashboard },
     { to: "/bloodbank/stock", label: "Blood Stock", icon: Boxes },
+    { to: "/hospital/messages", label: "Messages", icon: MessageSquare },
     { to: "/bloodbank/requests", label: "Open Requests", icon: TriangleAlert },
     { to: "/bloodbank/events", label: "Donation Events", icon: CalendarDays },
   ],
@@ -42,6 +45,7 @@ const NAV = {
     { to: "/admin", label: "Overview", icon: LayoutDashboard },
     { to: "/admin/verify", label: "Verifications", icon: ShieldCheck },
     { to: "/admin/users", label: "Users", icon: Users },
+    { to: "/bloodbank/messages", label: "Messages", icon: MessageSquare },
   ],
   SUPER_ADMIN: [
     { to: "/superadmin", label: "Security overview", icon: LayoutDashboard },

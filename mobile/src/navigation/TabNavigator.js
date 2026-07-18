@@ -1,10 +1,11 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Home, HeartHandshake, CalendarHeart, User } from "lucide-react-native";
+import { Home, HeartHandshake, CalendarHeart, MessageCircle, User } from "lucide-react-native";
 import { Platform } from "react-native";
 import HomeScreen from "../screens/HomeScreen";
 import RequestsScreen from "../screens/RequestsScreen";
 import EventsScreen from "../screens/EventsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import MessagesScreen from "../screens/MessagesScreen";
 import { colors, fonts } from "../theme";
 
 const Tab = createBottomTabNavigator();
@@ -14,6 +15,7 @@ const ICONS = {
   Requests: HeartHandshake,
   Events: CalendarHeart,
   Profile: User,
+  Messages: MessageCircle,
 };
 
 export default function TabNavigator() {
@@ -45,3 +47,4 @@ export default function TabNavigator() {
     </Tab.Navigator>
   );
 }
+      <Tab.Screen name="Messages" component={MessagesScreen} />

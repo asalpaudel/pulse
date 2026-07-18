@@ -41,6 +41,7 @@ import BloodBankStock from "./pages/bloodbank/BloodBankStock";
 import BloodBankRequests from "./pages/bloodbank/BloodBankRequests";
 import BloodBankEvents from "./pages/bloodbank/BloodBankEvents";
 import BloodBankProfile from "./pages/bloodbank/BloodBankProfile";
+import Messages from "./pages/shared/Messages";
 
 // Admin
 import AdminOverview from "./pages/admin/AdminOverview";
@@ -95,6 +96,7 @@ export default function App() {
               <Route path="requests" element={<DonorRequests />} />
               <Route path="events" element={<DonorEvents />} />
               <Route path="history" element={<DonorHistory />} />
+              <Route path="messages" element={<Messages />} />
               <Route path="profile" element={<DonorProfile />} />
             </Route>
 
@@ -104,6 +106,7 @@ export default function App() {
               <Route path="requests" element={<HospitalRequests />} />
               <Route path="donors" element={<HospitalDonorSearch />} />
               <Route path="bloodbanks" element={<HospitalBloodBankSearch />} />
+              <Route path="messages" element={<Messages />} />
               <Route path="profile" element={<HospitalProfile />} />
             </Route>
 
@@ -116,6 +119,7 @@ export default function App() {
               <Route path="stock" element={<BloodBankStock />} />
               <Route path="requests" element={<BloodBankRequests />} />
               <Route path="events" element={<BloodBankEvents />} />
+              <Route path="messages" element={<Messages />} />
               <Route path="profile" element={<BloodBankProfile />} />
             </Route>
 

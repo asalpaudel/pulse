@@ -12,6 +12,7 @@ import RequestDetailScreen from "../screens/RequestDetailScreen";
 import EventDetailScreen from "../screens/EventDetailScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
 import EditProfileScreen from "../screens/EditProfileScreen";
+import ChatThreadScreen from "../screens/ChatThreadScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -65,6 +66,11 @@ export default function RootNavigator() {
               name="Notifications"
               component={NotificationsScreen}
               options={{ ...detailHeader, title: "Notifications" }}
+            />
+            <Stack.Screen
+              name="ChatThread"
+              component={ChatThreadScreen}
+              options={{ ...detailHeader, title: "Messages" }}
             />
             <Stack.Screen
               name="EditProfile"
