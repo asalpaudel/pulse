@@ -43,6 +43,10 @@ const NAV = {
     { to: "/admin/verify", label: "Verifications", icon: ShieldCheck },
     { to: "/admin/users", label: "Users", icon: Users },
   ],
+  SUPER_ADMIN: [
+    { to: "/superadmin", label: "Security overview", icon: LayoutDashboard },
+    { to: "/superadmin/security", label: "Two-factor security", icon: ShieldCheck },
+  ],
 };
 
 // Profile / Settings links pinned to the bottom of the sidebar, per role.
@@ -53,6 +57,7 @@ const FOOTER_NAV = {
   HOSPITAL: { profile: "/hospital/profile" },
   BLOOD_BANK: { profile: "/bloodbank/profile" },
   ADMIN: { profile: "/admin" },
+  SUPER_ADMIN: { profile: "/superadmin/security" },
 };
 
 const ROLE_SUBTITLE = {
@@ -60,6 +65,7 @@ const ROLE_SUBTITLE = {
   HOSPITAL: "Hospital Portal",
   BLOOD_BANK: "Blood Bank Portal",
   ADMIN: "Admin Portal",
+  SUPER_ADMIN: "Owner Security",
 };
 
 function navItemClass({ isActive }) {

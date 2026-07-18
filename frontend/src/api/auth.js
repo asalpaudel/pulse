@@ -10,9 +10,18 @@ export const verifyEmail = (payload) =>
 export const resendVerification = (payload) =>
   client.post("/auth/resend-verification", payload);
 
+export const forgotPassword = (email) =>
+  client.post("/auth/forgot-password", { email });
+
+export const resetPassword = (payload) =>
+  client.post("/auth/reset-password", payload);
+
 // POST /api/auth/login — { email, password }
 export const login = (payload) =>
   client.post("/auth/session/login", payload).then((r) => r.data);
+
+export const verifyTwoFactor = (payload) =>
+  client.post("/auth/session/verify-2fa", payload).then((r) => r.data);
 
 export const logout = () => client.post("/auth/session/logout");
 

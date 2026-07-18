@@ -12,6 +12,7 @@ import com.pulse.service.DonorService;
 import com.pulse.service.HospitalService;
 import com.pulse.service.EmailVerificationService;
 import com.pulse.service.RegistrationService;
+import com.pulse.service.PasswordResetService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,11 +32,13 @@ public class AuthController {
     private final BloodBankService bloodBankService;
     private final RegistrationService registrationService;
     private final EmailVerificationService emailVerificationService;
+    private final PasswordResetService passwordResetService;
 
     public AuthController(AuthService authService, UserRepository userRepository,
                           DonorService donorService, HospitalService hospitalService,
                           BloodBankService bloodBankService, RegistrationService registrationService,
-                          EmailVerificationService emailVerificationService) {
+                          EmailVerificationService emailVerificationService,
+                          PasswordResetService passwordResetService) {
         this.authService = authService;
         this.userRepository = userRepository;
         this.donorService = donorService;
@@ -43,6 +46,7 @@ public class AuthController {
         this.bloodBankService = bloodBankService;
         this.registrationService = registrationService;
         this.emailVerificationService = emailVerificationService;
+        this.passwordResetService = passwordResetService;
     }
 
     @PostMapping("/register")
@@ -58,6 +62,18 @@ public class AuthController {
     @PostMapping("/resend-verification")
     public ResponseEntity<Void> resendVerification(@Valid @RequestBody ResendVerificationRequest request) {
         emailVerificationService.resend(request.email());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        passwordResetService.request(request.email());
+        return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        passwordResetService.reset(request.token(), request.password());
         return ResponseEntity.noContent().build();
     }
 
@@ -77,7 +93,7 @@ public class AuthController {
             case DONOR -> result.put("profile", donorService.getByUserId(userId));
             case HOSPITAL -> result.put("profile", hospitalService.getByUserId(userId));
             case BLOOD_BANK -> result.put("profile", bloodBankService.getByUserId(userId));
-            case ADMIN -> result.put("profile", null);
+            case ADMIN, SUPER_ADMIN -> result.put("profile", null);
         }
         return result;
     }

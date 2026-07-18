@@ -43,6 +43,18 @@ class EmailServiceTests {
                 () -> service.sendVerificationCode("donor@pulse.test", "123"));
     }
 
+    @Test
+    void createsPasswordResetEmailWithSecureLink() throws Exception {
+        CapturingMailSender sender = new CapturingMailSender();
+        EmailService service = new EmailService(sender, "no-reply@pulse.test", "https://pulse.test");
+
+        service.sendPasswordReset("owner@pulse.test", "https://pulse.test/reset-password?token=safe-token", 15);
+
+        assertEquals("Reset your Pulse password", sender.message.getSubject());
+        assertTrue(sender.message.getContent().toString().contains("safe-token"));
+        assertTrue(sender.message.getContent().toString().contains("15 minutes"));
+    }
+
     private static class CapturingMailSender extends JavaMailSenderImpl {
         private MimeMessage message;
 

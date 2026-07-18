@@ -52,6 +52,29 @@ public class EmailService implements EmailGateway {
                 """.formatted(code));
     }
 
+    public void sendTwoFactorCode(String recipient, String code, String action) {
+        requireCode(code);
+        String safeAction = escapeHtml(action == null ? "continue" : action.toLowerCase());
+        sendHtml(recipient, "Pulse security verification code", """
+                <h2>Confirm your Pulse security action</h2>
+                <p>Use this code to %s:</p>
+                <p style="font-size:28px;font-weight:700;letter-spacing:6px">%s</p>
+                <p>This code expires in 10 minutes. If you did not request it, secure your account immediately.</p>
+                """.formatted(safeAction, code));
+    }
+
+    public void sendPasswordReset(String recipient, String resetUrl, long expiresInMinutes) {
+        String safeUrl = escapeHtml(resetUrl);
+        sendHtml(recipient, "Reset your Pulse password", """
+                <h2>Reset your Pulse password</h2>
+                <p>We received a request to reset the password for your Pulse account.</p>
+                <p style="margin:24px 0"><a href="%s" style="background:#b91c1c;color:#fff;padding:12px 20px;text-decoration:none;border-radius:999px;font-weight:700">Reset password</a></p>
+                <p>This secure link expires in %d minutes and can only be used once.</p>
+                <p>If you did not request a password reset, you can safely ignore this email.</p>
+                <p style="word-break:break-all;color:#64748b;font-size:12px">%s</p>
+                """.formatted(safeUrl, expiresInMinutes, safeUrl));
+    }
+
     public void sendWelcome(String recipient) {
         String safeUrl = escapeHtml(frontendUrl);
         sendHtml(recipient, "Welcome to Pulse", """

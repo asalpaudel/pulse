@@ -1,5 +1,5 @@
 package com.pulse.entity;
 
 public enum Role {
-    DONOR, HOSPITAL, BLOOD_BANK, ADMIN
+    DONOR, HOSPITAL, BLOOD_BANK, ADMIN, SUPER_ADMIN
 }

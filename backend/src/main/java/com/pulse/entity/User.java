@@ -31,6 +31,9 @@ public class User {
     @Column(nullable = false)
     private boolean verified;
 
+    @Column(name = "two_factor_enabled", nullable = false)
+    private boolean twoFactorEnabled;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

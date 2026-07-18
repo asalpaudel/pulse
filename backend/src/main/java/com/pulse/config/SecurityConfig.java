@@ -41,7 +41,9 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/i18n/**").permitAll()
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/session/login",
-                                "/api/auth/verify-email", "/api/auth/resend-verification").permitAll()
+                                "/api/auth/session/verify-2fa", "/api/auth/verify-email",
+                                "/api/auth/resend-verification", "/api/auth/forgot-password",
+                                "/api/auth/reset-password").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

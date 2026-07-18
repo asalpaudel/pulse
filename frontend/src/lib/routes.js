@@ -4,6 +4,7 @@ const HOME_BY_ROLE = {
   HOSPITAL: "/hospital",
   BLOOD_BANK: "/bloodbank",
   ADMIN: "/admin",
+  SUPER_ADMIN: "/superadmin",
 };
 
 export function homePathForRole(role) {

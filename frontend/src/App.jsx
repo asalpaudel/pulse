@@ -15,7 +15,10 @@ import {
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import SuperAdminSecurity from "./pages/superadmin/SuperAdminSecurity";
 
 // Donor
 import DonorOverview from "./pages/donor/DonorOverview";
@@ -82,6 +85,8 @@ export default function App() {
                 </PublicOnlyRoute>
               }
             />
+            <Route path="/forgot-password" element={<PublicOnlyRoute><ForgotPassword /></PublicOnlyRoute>} />
+            <Route path="/reset-password" element={<PublicOnlyRoute><ResetPassword /></PublicOnlyRoute>} />
 
             {/* Donor */}
             <Route path="/donor" element={<RoleDashboard role="DONOR" />}>
@@ -119,6 +124,11 @@ export default function App() {
               <Route index element={<AdminOverview />} />
               <Route path="verify" element={<AdminVerify />} />
               <Route path="users" element={<AdminUsers />} />
+            </Route>
+
+            <Route path="/superadmin" element={<RoleDashboard role="SUPER_ADMIN" />}>
+              <Route index element={<SuperAdminSecurity />} />
+              <Route path="security" element={<SuperAdminSecurity />} />
             </Route>
 
             <Route path="/404" element={<NotFound />} />

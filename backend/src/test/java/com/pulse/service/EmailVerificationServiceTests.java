@@ -112,6 +112,14 @@ class EmailVerificationServiceTests {
         }
 
         @Override
+        public void sendTwoFactorCode(String recipient, String code, String action) {
+        }
+
+        @Override
+        public void sendPasswordReset(String recipient, String resetUrl, long expiresInMinutes) {
+        }
+
+        @Override
         public void sendWelcome(String recipient) {
         }
     }

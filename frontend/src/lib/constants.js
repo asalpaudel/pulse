@@ -5,6 +5,7 @@ export const ROLES = {
   HOSPITAL: "HOSPITAL",
   BLOOD_BANK: "BLOOD_BANK",
   ADMIN: "ADMIN",
+  SUPER_ADMIN: "SUPER_ADMIN",
 };
 
 export const ROLE_LABELS = {
@@ -12,6 +13,7 @@ export const ROLE_LABELS = {
   HOSPITAL: "Hospital",
   BLOOD_BANK: "Blood Bank",
   ADMIN: "Administrator",
+  SUPER_ADMIN: "Super Admin",
 };
 
 export const BLOOD_GROUPS = [

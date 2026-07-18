@@ -20,16 +20,22 @@ public class UserPrincipal implements UserDetails, Serializable {
     private final String email;
     private final String password;
     private final Role role;
+    private final boolean twoFactorEnabled;
 
-    public UserPrincipal(Long id, String email, String password, Role role) {
+    public UserPrincipal(Long id, String email, String password, Role role, boolean twoFactorEnabled) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.twoFactorEnabled = twoFactorEnabled;
+    }
+
+    public UserPrincipal(Long id, String email, String password, Role role) {
+        this(id, email, password, role, false);
     }
 
     public static UserPrincipal from(User u) {
-        return new UserPrincipal(u.getId(), u.getEmail(), u.getPasswordHash(), u.getRole());
+        return new UserPrincipal(u.getId(), u.getEmail(), u.getPasswordHash(), u.getRole(), u.isTwoFactorEnabled());
     }
 
     public Long getId() {
@@ -38,6 +44,10 @@ public class UserPrincipal implements UserDetails, Serializable {
 
     public Role getRole() {
         return role;
+    }
+
+    public boolean isTwoFactorEnabled() {
+        return twoFactorEnabled;
     }
 
     @Override

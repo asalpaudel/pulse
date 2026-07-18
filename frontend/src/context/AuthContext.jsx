@@ -70,6 +70,17 @@ export function AuthProvider({ children }) {
   const login = useCallback(
     async (credentials) => {
       const data = await authApi.login(credentials);
+      if (data.twoFactorRequired) return data;
+      persist(null, { id: data.userId, role: data.role });
+      await refreshMe();
+      return data;
+    },
+    [persist, refreshMe],
+  );
+
+  const verifyTwoFactor = useCallback(
+    async (payload) => {
+      const data = await authApi.verifyTwoFactor(payload);
       persist(null, { id: data.userId, role: data.role });
       await refreshMe();
       return data;
@@ -106,6 +117,7 @@ export function AuthProvider({ children }) {
     isAuthenticated: Boolean(user),
     role: user?.role || null,
     login,
+    verifyTwoFactor,
     register,
     verifyEmail,
     resendVerification,

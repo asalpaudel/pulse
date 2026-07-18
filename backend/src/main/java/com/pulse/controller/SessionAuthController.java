@@ -1,11 +1,16 @@
 package com.pulse.controller;
 
 import com.pulse.dto.AuthDtos.LoginRequest;
+import com.pulse.dto.AuthDtos.TwoFactorVerificationRequest;
+import com.pulse.entity.Role;
+import com.pulse.entity.User;
 import com.pulse.security.UserPrincipal;
+import com.pulse.service.TwoFactorService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,11 +33,19 @@ public class SessionAuthController {
     private static final int SESSION_TIMEOUT_SECONDS = 30 * 60;
 
     private final AuthenticationManager authenticationManager;
+    private final TwoFactorService twoFactorService;
     private final SecurityContextRepository securityContextRepository =
             new HttpSessionSecurityContextRepository();
 
-    public SessionAuthController(AuthenticationManager authenticationManager) {
+    @Autowired
+    public SessionAuthController(AuthenticationManager authenticationManager,
+                                 TwoFactorService twoFactorService) {
         this.authenticationManager = authenticationManager;
+        this.twoFactorService = twoFactorService;
+    }
+
+    SessionAuthController(AuthenticationManager authenticationManager) {
+        this(authenticationManager, null);
     }
 
     @PostMapping("/login")
@@ -41,6 +54,39 @@ public class SessionAuthController {
                                      HttpServletResponse servletResponse) {
         Authentication authentication = authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken.unauthenticated(request.email(), request.password()));
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        if (principal.getRole() == Role.SUPER_ADMIN && principal.isTwoFactorEnabled()) {
+            TwoFactorService.ChallengeInfo challenge = twoFactorService.issueLogin(User.builder()
+                    .id(principal.getId())
+                    .email(principal.getUsername())
+                    .passwordHash(principal.getPassword())
+                    .role(principal.getRole())
+                    .verified(true)
+                    .twoFactorEnabled(true)
+                    .build());
+            return Map.of(
+                    "twoFactorRequired", true,
+                    "challengeId", challenge.challengeId(),
+                    "expiresInSeconds", challenge.expiresInSeconds(),
+                    "role", principal.getRole());
+        }
+        return establishSession(authentication, servletRequest, servletResponse);
+    }
+
+    @PostMapping("/verify-2fa")
+    public Map<String, Object> verifyTwoFactor(@Valid @RequestBody TwoFactorVerificationRequest request,
+                                               HttpServletRequest servletRequest,
+                                               HttpServletResponse servletResponse) {
+        User user = twoFactorService.verifyLogin(request.challengeId(), request.code());
+        UserPrincipal principal = UserPrincipal.from(user);
+        Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(
+                principal, null, principal.getAuthorities());
+        return establishSession(authentication, servletRequest, servletResponse);
+    }
+
+    private Map<String, Object> establishSession(Authentication authentication,
+                                                  HttpServletRequest servletRequest,
+                                                  HttpServletResponse servletResponse) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
@@ -50,7 +96,7 @@ public class SessionAuthController {
         if (session != null) session.setMaxInactiveInterval(SESSION_TIMEOUT_SECONDS);
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        return Map.of("userId", principal.getId(), "role", principal.getRole());
+        return Map.of("userId", principal.getId(), "role", principal.getRole(), "twoFactorRequired", false);
     }
 
     @PostMapping("/touch")
