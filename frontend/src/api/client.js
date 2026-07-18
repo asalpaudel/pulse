@@ -1,15 +1,34 @@
 import axios from "axios";
 
-export const API_BASE = "http://localhost:8080";
+export const API_BASE =
+  import.meta.env.VITE_API_BASE || "http://localhost:8080";
 
 const client = axios.create({
   baseURL: `${API_BASE}/api`,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
+  xsrfCookieName: "XSRF-TOKEN",
+  xsrfHeaderName: "X-XSRF-TOKEN",
+  withXSRFToken: true,
 });
 
+let csrfRequest;
+const SAFE_METHODS = new Set(["get", "head", "options"]);
+
+async function ensureCsrfToken() {
+  if (document.cookie.split("; ").some((item) => item.startsWith("XSRF-TOKEN="))) return;
+  if (!csrfRequest) {
+    csrfRequest = axios.get(`${API_BASE}/api/auth/csrf`, { withCredentials: true })
+      .finally(() => { csrfRequest = null; });
+  }
+  await csrfRequest;
+}
+
 // Inject JWT bearer token on every request.
-client.interceptors.request.use((config) => {
+client.interceptors.request.use(async (config) => {
+  if (!SAFE_METHODS.has((config.method || "get").toLowerCase()) && !config.headers.Authorization) {
+    await ensureCsrfToken();
+  }
   const token = localStorage.getItem("pulse_token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
