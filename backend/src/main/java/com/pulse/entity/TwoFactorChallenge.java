@@ -15,7 +15,7 @@ import java.util.UUID;
 @Builder
 public class TwoFactorChallenge {
 
-    public enum Purpose { LOGIN, ENABLE, DISABLE }
+    public enum Purpose { LOGIN, ENABLE, DISABLE, NEW_DEVICE }
 
     @Id
     private UUID id;

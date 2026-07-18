@@ -23,6 +23,9 @@ export const login = (payload) =>
 export const verifyTwoFactor = (payload) =>
   client.post("/auth/session/verify-2fa", payload).then((r) => r.data);
 
+export const verifyDevice = (payload) =>
+  client.post("/auth/session/verify-device", payload).then((r) => r.data);
+
 export const logout = () => client.post("/auth/session/logout");
 
 export const touchSession = () => client.post("/auth/session/touch");

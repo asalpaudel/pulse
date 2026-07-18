@@ -8,7 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import { homePathForRole } from "../lib/routes";
 
 export default function Login() {
-  const { login, verifyTwoFactor } = useAuth();
+  const { login, verifyTwoFactor, verifyDevice } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ email: "", password: "" });
@@ -25,7 +25,7 @@ export default function Login() {
     setLoading(true);
     try {
       const data = await login(form);
-      if (data.twoFactorRequired) {
+      if (data.twoFactorRequired || data.deviceVerificationRequired) {
         setChallenge(data);
         return;
       }
@@ -43,7 +43,8 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      const data = await verifyTwoFactor({ challengeId: challenge.challengeId, code });
+      const verify = challenge.deviceVerificationRequired ? verifyDevice : verifyTwoFactor;
+      const data = await verify({ challengeId: challenge.challengeId, code });
       const dest = location.state?.from?.pathname || homePathForRole(data.role);
       navigate(dest, { replace: true });
     } catch (err) {
@@ -56,7 +57,7 @@ export default function Login() {
   return (
     <AuthShell
       title={challenge ? "Security check" : "Ready to help?"}
-      subtitle={challenge ? "Enter the code sent to your Super Admin email." : "Access your Pulse dashboard"}
+      subtitle={challenge ? `Enter the code sent to your email${challenge.deviceVerificationRequired ? " to trust this device" : ""}.` : "Access your Pulse dashboard"}
       footer={
         <>
           New to Pulse?{" "}
@@ -77,7 +78,9 @@ export default function Login() {
           <>
             <div className="flex items-start gap-3 rounded-xl border border-tertiary-100 bg-tertiary-50 p-4 text-tertiary-800">
               <ShieldCheck size={20} className="mt-0.5 shrink-0" />
-              <p className="text-sm leading-relaxed">Your password was accepted. This second step protects access to platform-wide controls.</p>
+              <p className="text-sm leading-relaxed">{challenge.deviceVerificationRequired
+                ? "This device is new to Pulse. Confirm the email code to finish signing in; it will be remembered for 90 days."
+                : "Your password was accepted. This second step protects access to platform-wide controls."}</p>
             </div>
             <Input
               label="Six-digit security code"
