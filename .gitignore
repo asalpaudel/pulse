@@ -11,6 +11,7 @@ frontend/.vite/
 # Env / secrets
 *.env
 .env.local
+backend/src/main/resources/application.properties
 
 # OS / IDE
 .DS_Store
