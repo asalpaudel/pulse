@@ -21,10 +21,18 @@ public class EventEnrollment {
     @Column(name = "donation_event_id", nullable = false)
     private Long donationEventId;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "donation_event_id", insertable = false, updatable = false)
+    private DonationEvent donationEvent;
+
     @Column(name = "donor_id", nullable = false)
     private Long donorId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "donor_id", insertable = false, updatable = false)
+    private Donor donor;
+
     private Instant createdAt;
 
     @PrePersist

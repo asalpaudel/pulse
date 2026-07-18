@@ -21,6 +21,10 @@ public class BloodRequest {
     @Column(name = "requester_user_id", nullable = false)
     private Long requesterUserId;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "requester_user_id", insertable = false, updatable = false)
+    private User requester;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "blood_group", nullable = false)
     private BloodGroup bloodGroup;

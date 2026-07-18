@@ -17,6 +17,10 @@ public class BloodBank {
     private Long id;
 
     @Column(name = "user_id", nullable = false, unique = true)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
+
     private Long userId;
 
     @Column(nullable = false)

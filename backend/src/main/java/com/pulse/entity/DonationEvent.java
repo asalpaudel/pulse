@@ -21,6 +21,10 @@ public class DonationEvent {
     @Column(name = "blood_bank_id", nullable = false)
     private Long bloodBankId;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "blood_bank_id", insertable = false, updatable = false)
+    private BloodBank bloodBank;
+
     @Column(nullable = false)
     private String title;
 

@@ -21,6 +21,10 @@ public class Donor {
     @Column(name = "user_id", nullable = false, unique = true)
     private Long userId;
 
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
+
     @Column(name = "full_name", nullable = false)
     private String fullName;
 

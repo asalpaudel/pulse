@@ -21,8 +21,16 @@ public class RequestResponse {
     @Column(name = "blood_request_id", nullable = false)
     private Long bloodRequestId;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "blood_request_id", insertable = false, updatable = false)
+    private BloodRequest bloodRequest;
+
     @Column(name = "responder_user_id", nullable = false)
     private Long responderUserId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "responder_user_id", insertable = false, updatable = false)
+    private User responder;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "responder_role", nullable = false)
