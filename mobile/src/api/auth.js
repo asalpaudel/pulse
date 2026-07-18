@@ -6,7 +6,10 @@ export const register = (payload) =>
 
 // POST /api/auth/login — { email, password }
 export const login = (payload) =>
-  client.post("/auth/login", payload).then((r) => r.data);
+  client.post("/auth/mobile/login", payload).then((r) => r.data);
+
+export const verifyDevice = (payload) =>
+  client.post("/auth/mobile/verify-device", payload).then((r) => r.data);
 
 // GET /api/auth/me — current User + profile
 export const getMe = () => client.get("/auth/me").then((r) => r.data);

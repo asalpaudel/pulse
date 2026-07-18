@@ -41,7 +41,8 @@ public class SecurityConfig {
                         .csrfTokenRequestHandler(csrfHandler)
                         .ignoringRequestMatchers(request -> {
                             String authorization = request.getHeader("Authorization");
-                            return authorization != null && authorization.startsWith("Bearer ");
+                            return (authorization != null && authorization.startsWith("Bearer "))
+                                    || request.getRequestURI().startsWith("/api/auth/mobile/");
                         }, request -> request.getRequestURI().startsWith("/ws")))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(sm -> sm
@@ -56,7 +57,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/session/login",
                                 "/api/auth/session/verify-2fa", "/api/auth/session/verify-device", "/api/auth/verify-email",
                                 "/api/auth/resend-verification", "/api/auth/forgot-password",
-                                "/api/auth/reset-password").permitAll()
+                                "/api/auth/reset-password", "/api/auth/mobile/login",
+                                "/api/auth/mobile/verify-device").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

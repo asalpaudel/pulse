@@ -7,7 +7,7 @@ import {
 } from "react";
 import * as authApi from "../api/auth";
 import * as storage from "../api/storage";
-import { TOKEN_KEY, USER_KEY } from "../api/storage";
+import { TOKEN_KEY, USER_KEY, DEVICE_KEY } from "../api/storage";
 import { setUnauthorizedHandler } from "../api/client";
 
 const AuthContext = createContext(null);
@@ -92,13 +92,23 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(
     async (credentials) => {
-      const data = await authApi.login(credentials);
+      const deviceToken = await storage.getItem(DEVICE_KEY);
+      const data = await authApi.login({ credentials, deviceToken });
+      if (data.deviceVerificationRequired) return data;
       await persist(data.token, { id: data.userId, role: data.role });
       await refreshMe();
       return data;
     },
     [persist, refreshMe],
   );
+
+  const verifyDevice = useCallback(async (payload) => {
+    const data = await authApi.verifyDevice(payload);
+    if (data.deviceToken) await storage.setItem(DEVICE_KEY, data.deviceToken);
+    await persist(data.token, { id: data.userId, role: data.role });
+    await refreshMe();
+    return data;
+  }, [persist, refreshMe]);
 
   const register = useCallback(
     async (payload) => {
@@ -118,6 +128,7 @@ export function AuthProvider({ children }) {
     isAuthenticated: Boolean(token),
     role: user?.role || null,
     login,
+    verifyDevice,
     register,
     logout,
     refreshMe,

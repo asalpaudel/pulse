@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Mail, Lock, ArrowRight, Droplet } from "lucide-react-native";
+import { Mail, Lock, ArrowRight, Droplet, ShieldCheck } from "lucide-react-native";
 import {
   Screen,
   Card,
@@ -19,7 +19,7 @@ import { colors, fontSize, radius, spacing, shadow } from "../../theme";
 
 export default function LoginScreen() {
   const navigation = useNavigation();
-  const { login } = useAuth();
+  const { login, verifyDevice } = useAuth();
   const { toast } = useToast();
 
   const [email, setEmail] = useState("");
@@ -27,6 +27,8 @@ export default function LoginScreen() {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
+  const [challenge, setChallenge] = useState(null);
+  const [code, setCode] = useState("");
   const validate = () => {
     const next = {};
     if (!email.trim()) next.email = "Email is required";
@@ -40,7 +42,10 @@ export default function LoginScreen() {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      await login({ email: email.trim(), password });
+      const result = challenge
+        ? await verifyDevice({ challengeId: challenge.challengeId, code })
+        : await login({ email: email.trim(), password });
+      if (result?.deviceVerificationRequired) setChallenge(result);
       // Navigator swaps to the app stack automatically once the token is set.
     } catch (err) {
       toast.error(err?.message || "Unable to sign in. Check your details.");
@@ -71,6 +76,15 @@ export default function LoginScreen() {
         {/* Form card lifts over the hero */}
         <View style={styles.formWrap}>
           <Card elevated style={styles.card}>
+            {challenge ? (
+              <>
+                <View style={styles.securityNote}>
+                  <ShieldCheck size={20} color={colors.primary} />
+                  <Body size={13}>Enter the six-digit code sent to your email to trust this device.</Body>
+                </View>
+                <Input label="Verification code" value={code} onChangeText={(value) => setCode(value.replace(/\D/g, "").slice(0, 6))} keyboardType="number-pad" maxLength={6} />
+              </>
+            ) : <>
             <Input
               label="Email"
               value={email}
@@ -97,8 +111,9 @@ export default function LoginScreen() {
               secureTextEntry
               error={errors.password}
             />
+            </>}
             <Button
-              title="Sign in"
+              title={challenge ? "Verify device" : "Sign in"}
               size="lg"
               icon={ArrowRight}
               iconRight
@@ -150,6 +165,7 @@ const styles = StyleSheet.create({
   },
   card: { gap: spacing.lg, ...shadow.elevated },
   cta: { marginTop: spacing.xs },
+  securityNote: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
   footerRow: {
     flexDirection: "row",
     alignItems: "center",
