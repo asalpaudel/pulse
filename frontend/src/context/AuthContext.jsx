@@ -1,25 +1,17 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import * as authApi from "../api/auth";
+import SessionTimeoutMonitor from "../components/SessionTimeoutMonitor";
 
 const AuthContext = createContext(null);
 
 const TOKEN_KEY = "pulse_token";
 const USER_KEY = "pulse_user";
 
-function readStoredUser() {
-  try {
-    const raw = localStorage.getItem(USER_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
-  const [user, setUser] = useState(readStoredUser);
+  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(Boolean(localStorage.getItem(TOKEN_KEY)));
+  const [loading, setLoading] = useState(true);
 
   const persist = useCallback((nextToken, nextUser) => {
     if (nextToken) localStorage.setItem(TOKEN_KEY, nextToken);
@@ -30,9 +22,15 @@ export function AuthProvider({ children }) {
     setUser(nextUser || null);
   }, []);
 
-  const logout = useCallback(() => {
-    persist(null, null);
-    setProfile(null);
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } catch {
+      // An expired server session is already logged out.
+    } finally {
+      persist(null, null);
+      setProfile(null);
+    }
   }, [persist]);
 
   // Refresh full user + profile from /auth/me.
@@ -49,30 +47,30 @@ export function AuthProvider({ children }) {
       });
       return me;
     } catch {
-      // Leave existing state; interceptor handles hard 401.
+      persist(null, null);
+      setProfile(null);
       return null;
     }
-  }, []);
+  }, [persist]);
 
   useEffect(() => {
     let active = true;
     // Resolve the session asynchronously so we never setState synchronously
     // inside the effect body.
     Promise.resolve()
-      .then(() => (token ? refreshMe() : null))
+      .then(refreshMe)
       .finally(() => {
         if (active) setLoading(false);
       });
     return () => {
       active = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refreshMe]);
 
   const login = useCallback(
     async (credentials) => {
       const data = await authApi.login(credentials);
-      persist(data.token, { id: data.userId, role: data.role });
+      persist(null, { id: data.userId, role: data.role });
       await refreshMe();
       return data;
     },
@@ -81,10 +79,11 @@ export function AuthProvider({ children }) {
 
   const register = useCallback(
     async (payload) => {
-      const data = await authApi.register(payload);
-      persist(data.token, { id: data.userId, role: data.role });
+      await authApi.register(payload);
+      const session = await authApi.login({ email: payload.email, password: payload.password });
+      persist(null, { id: session.userId, role: session.role });
       await refreshMe();
-      return data;
+      return session;
     },
     [persist, refreshMe],
   );
@@ -94,7 +93,7 @@ export function AuthProvider({ children }) {
     user,
     profile,
     loading,
-    isAuthenticated: Boolean(token),
+    isAuthenticated: Boolean(user),
     role: user?.role || null,
     login,
     register,
@@ -103,7 +102,17 @@ export function AuthProvider({ children }) {
     setProfile,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const handleInactivityTimeout = useCallback(async () => {
+    await logout();
+    window.location.assign("/login?reason=inactive");
+  }, [logout]);
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      {Boolean(user) && <SessionTimeoutMonitor onTimeout={handleInactivityTimeout} />}
+    </AuthContext.Provider>
+  );
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

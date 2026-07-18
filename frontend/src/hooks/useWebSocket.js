@@ -20,12 +20,12 @@ export function useWebSocket(userId, token, onMessage) {
   }, [onMessage]);
 
   useEffect(() => {
-    if (!userId || !token) return undefined;
+    if (!userId) return undefined;
 
     const client = new Client({
       // SockJS factory — the backend exposes /ws.
       webSocketFactory: () => new SockJS(`${API_BASE}/ws`),
-      connectHeaders: { Authorization: `Bearer ${token}` },
+      connectHeaders: token ? { Authorization: `Bearer ${token}` } : {},
       reconnectDelay: 5000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,

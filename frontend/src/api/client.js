@@ -4,6 +4,7 @@ export const API_BASE = "http://localhost:8080";
 
 const client = axios.create({
   baseURL: `${API_BASE}/api`,
+  withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -21,7 +22,7 @@ client.interceptors.response.use(
   (res) => res,
   (error) => {
     const status = error.response?.status;
-    if (status === 401) {
+    if (status === 401 && !error.config?.skipAuthRedirect) {
       // Token invalid/expired — clear and bounce to login.
       const onAuthPage = ["/login", "/register"].includes(
         window.location.pathname,
