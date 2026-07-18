@@ -43,6 +43,7 @@ import BloodBankEvents from "./pages/bloodbank/BloodBankEvents";
 import BloodBankProfile from "./pages/bloodbank/BloodBankProfile";
 import Messages from "./pages/shared/Messages";
 
+import PaymentCallback from "./pages/payment/PaymentCallback";
 // Admin
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminVerify from "./pages/admin/AdminVerify";
@@ -141,6 +142,11 @@ export default function App() {
           <Toaster />
         </AuthProvider>
       </ToastProvider>
+            <Route
+              path="/payment/callback"
+              element={<ProtectedRoute><PaymentCallback /></ProtectedRoute>}
+            />
+
       </MotionConfig>
     </BrowserRouter>
   );

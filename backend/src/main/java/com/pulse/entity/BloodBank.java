@@ -2,6 +2,9 @@ package com.pulse.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+
+import java.time.Instant;
 
 @Entity
 @Table(name = "blood_banks")
@@ -36,4 +39,17 @@ public class BloodBank {
 
     @Column(nullable = false)
     private boolean verified;
+
+    /** Monetization (Tier 2): paid "Featured" placement — surfaces first in search & a Featured section. */
+    @Column(nullable = false)
+    @ColumnDefault("false")
+    private boolean featured;
+
+    /** When the featured placement expires (null = not featured / no expiry tracking). */
+    @Column(name = "featured_until")
+    private Instant featuredUntil;
+
+    /** Logo as a base64 data URL (optional). */
+    @Column(name = "image_data", columnDefinition = "text")
+    private String imageData;
 }
