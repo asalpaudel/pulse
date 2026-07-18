@@ -1,9 +1,27 @@
 package com.pulse.exception;
 
 import java.time.Instant;
+import java.util.Map;
 
-public record ErrorResponse(String timestamp, int status, String error, String message) {
-    public static ErrorResponse of(int status, String error, String message) {
-        return new ErrorResponse(Instant.now().toString(), status, error, message);
+public record ErrorResponse(
+        String timestamp,
+        int status,
+        String error,
+        String message,
+        String path,
+        Map<String, String> fieldErrors
+) {
+    public static ErrorResponse of(int status, String error, String message, String path) {
+        return new ErrorResponse(Instant.now().toString(), status, error, message, path, Map.of());
+    }
+
+    public static ErrorResponse validation(
+            int status,
+            String error,
+            String message,
+            String path,
+            Map<String, String> fieldErrors
+    ) {
+        return new ErrorResponse(Instant.now().toString(), status, error, message, path, Map.copyOf(fieldErrors));
     }
 }
