@@ -17,11 +17,11 @@ public class Hospital {
     private Long id;
 
     @Column(name = "user_id", nullable = false, unique = true)
+    private Long userId;
+
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
-
-    private Long userId;
 
     @Column(nullable = false)
     private String name;

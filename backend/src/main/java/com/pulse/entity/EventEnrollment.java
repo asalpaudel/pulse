@@ -28,11 +28,11 @@ public class EventEnrollment {
     @Column(name = "donor_id", nullable = false)
     private Long donorId;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "donor_id", insertable = false, updatable = false)
     private Donor donor;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @PrePersist
