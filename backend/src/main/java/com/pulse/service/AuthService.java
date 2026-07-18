@@ -102,6 +102,9 @@ public class AuthService {
         if (!passwordEncoder.matches(req.password(), user.getPasswordHash())) {
             throw ApiException.unauthorized("Invalid credentials");
         }
+        if (!user.isVerified()) {
+            throw ApiException.forbidden("Account verification is required before signing in");
+        }
         String token = jwtService.generateToken(user.getId(), user.getEmail(), user.getRole().name());
         return new AuthResponse(token, user.getId(), user.getRole());
     }

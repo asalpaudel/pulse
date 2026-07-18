@@ -4,6 +4,12 @@ import client from "./client";
 export const register = (payload) =>
   client.post("/auth/register", payload).then((r) => r.data);
 
+export const verifyEmail = (payload) =>
+  client.post("/auth/verify-email", payload).then((r) => r.data);
+
+export const resendVerification = (payload) =>
+  client.post("/auth/resend-verification", payload);
+
 // POST /api/auth/login — { email, password }
 export const login = (payload) =>
   client.post("/auth/session/login", payload).then((r) => r.data);

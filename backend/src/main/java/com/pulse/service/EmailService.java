@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 @Service
-public class EmailService {
+public class EmailService implements EmailGateway {
 
     private static final Pattern SIX_DIGIT_CODE = Pattern.compile("\\d{6}");
 

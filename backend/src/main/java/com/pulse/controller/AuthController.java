@@ -10,6 +10,8 @@ import com.pulse.service.AuthService;
 import com.pulse.service.BloodBankService;
 import com.pulse.service.DonorService;
 import com.pulse.service.HospitalService;
+import com.pulse.service.EmailVerificationService;
+import com.pulse.service.RegistrationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,20 +29,36 @@ public class AuthController {
     private final DonorService donorService;
     private final HospitalService hospitalService;
     private final BloodBankService bloodBankService;
+    private final RegistrationService registrationService;
+    private final EmailVerificationService emailVerificationService;
 
     public AuthController(AuthService authService, UserRepository userRepository,
                           DonorService donorService, HospitalService hospitalService,
-                          BloodBankService bloodBankService) {
+                          BloodBankService bloodBankService, RegistrationService registrationService,
+                          EmailVerificationService emailVerificationService) {
         this.authService = authService;
         this.userRepository = userRepository;
         this.donorService = donorService;
         this.hospitalService = hospitalService;
         this.bloodBankService = bloodBankService;
+        this.registrationService = registrationService;
+        this.emailVerificationService = emailVerificationService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest req) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(req));
+    public ResponseEntity<RegistrationResponse> register(@Valid @RequestBody RegisterRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(registrationService.register(req));
+    }
+
+    @PostMapping("/verify-email")
+    public AuthResponse verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        return emailVerificationService.verify(request.email(), request.code());
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<Void> resendVerification(@Valid @RequestBody ResendVerificationRequest request) {
+        emailVerificationService.resend(request.email());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")

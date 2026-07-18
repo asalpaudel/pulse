@@ -40,7 +40,8 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/i18n/**").permitAll()
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/session/login").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/session/login",
+                                "/api/auth/verify-email", "/api/auth/resend-verification").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

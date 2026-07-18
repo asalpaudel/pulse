@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Droplet, Hospital, Building2, Check, AlertCircle } from "lucide-react";
 import AuthShell from "../components/AuthShell";
@@ -22,7 +22,7 @@ const REGISTERABLE_ROLES = [
 ];
 
 export default function Register() {
-  const { register } = useAuth();
+  const { register, verifyEmail, resendVerification } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [role, setRole] = useState("DONOR");
@@ -38,6 +38,9 @@ export default function Register() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [resendSeconds, setResendSeconds] = useState(0);
+  const [resendMessage, setResendMessage] = useState("");
 
   const setAcc = (k) => (e) =>
     setAccount((a) => ({ ...a, [k]: e.target.value }));
@@ -87,13 +90,14 @@ export default function Register() {
     setError("");
     setLoading(true);
     try {
-      const data = await register({
+      await register({
         email: account.email,
         password: account.password,
         role,
         profile: buildProfile(),
       });
-      navigate(homePathForRole(data.role), { replace: true });
+      setResendSeconds(60);
+      setStep(3);
     } catch (err) {
       setError(err.message || "Unable to create account");
     } finally {
@@ -101,13 +105,58 @@ export default function Register() {
     }
   };
 
+  useEffect(() => {
+    if (resendSeconds <= 0) return undefined;
+    const timer = window.setInterval(() => {
+      setResendSeconds((seconds) => Math.max(0, seconds - 1));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [resendSeconds]);
+
+  const submitVerification = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const data = await verifyEmail({
+        email: account.email,
+        code: verificationCode,
+        password: account.password,
+      });
+      navigate(homePathForRole(data.role), { replace: true });
+    } catch (err) {
+      setError(err.message || "Unable to verify your email");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendCode = async () => {
+    setError("");
+    setResendMessage("");
+    setLoading(true);
+    try {
+      await resendVerification(account.email);
+      setResendSeconds(60);
+      setResendMessage("A new verification code was sent.");
+    } catch (err) {
+      setError(err.message || "Unable to resend the code");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const maskedEmail = account.email.replace(/(^.).*(@.*$)/, "$1••••$2");
+
   return (
     <AuthShell
-      title={step === 1 ? "Create your account" : "Tell us about you"}
+      title={step === 1 ? "Create your account" : step === 2 ? "Tell us about you" : "Verify your email"}
       subtitle={
         step === 1
           ? "Choose a role to get started"
-          : "These details power matching and verification"
+          : step === 2
+            ? "These details power matching and verification"
+            : `Enter the six-digit code sent to ${maskedEmail}.`
       }
       footer={
         step === 1 ? (
@@ -130,7 +179,7 @@ export default function Register() {
     >
       {/* Step indicator */}
       <div className="mb-6 flex items-center gap-3" aria-hidden="true">
-        {[1, 2].map((s) => (
+        {[1, 2, 3].map((s) => (
           <div key={s} className="flex flex-1 items-center gap-3">
             <span
               className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition ${
@@ -146,9 +195,9 @@ export default function Register() {
                 step >= s ? "text-secondary" : "text-neutral-400"
               }`}
             >
-              {s === 1 ? "Account" : "Profile"}
+              {s === 1 ? "Account" : s === 2 ? "Profile" : "Verify"}
             </span>
-            {s === 1 && (
+            {s < 3 && (
               <span
                 className={`h-px flex-1 transition ${
                   step > 1 ? "bg-primary/40" : "bg-neutral-200"
@@ -328,6 +377,36 @@ export default function Register() {
           <Button type="submit" className="w-full" loading={loading}>
             Create account
           </Button>
+        </form>
+      )}
+
+      {step === 3 && (
+        <form onSubmit={submitVerification} className="space-y-4">
+          <div className="rounded-xl border border-tertiary-100 bg-tertiary-50 p-4 text-sm leading-relaxed text-tertiary-800">
+            The code expires in 10 minutes. Check your spam folder if it does not arrive shortly.
+          </div>
+          <Input
+            label="Verification code"
+            name="verificationCode"
+            value={verificationCode}
+            onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            placeholder="000000"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            required
+          />
+          {resendMessage && <p className="text-sm text-tertiary-700">{resendMessage}</p>}
+          <Button type="submit" className="w-full" loading={loading} disabled={verificationCode.length !== 6}>
+            Verify and continue
+          </Button>
+          <button
+            type="button"
+            onClick={resendCode}
+            disabled={loading || resendSeconds > 0}
+            className="w-full text-sm font-semibold text-tertiary disabled:cursor-not-allowed disabled:text-neutral-400"
+          >
+            {resendSeconds > 0 ? `Resend code in ${resendSeconds}s` : "Resend verification code"}
+          </button>
         </form>
       )}
     </AuthShell>

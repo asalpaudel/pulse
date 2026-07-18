@@ -78,14 +78,24 @@ export function AuthProvider({ children }) {
   );
 
   const register = useCallback(
-    async (payload) => {
-      await authApi.register(payload);
-      const session = await authApi.login({ email: payload.email, password: payload.password });
+    async (payload) => authApi.register(payload),
+    [],
+  );
+
+  const verifyEmail = useCallback(
+    async ({ email, code, password }) => {
+      await authApi.verifyEmail({ email, code });
+      const session = await authApi.login({ email, password });
       persist(null, { id: session.userId, role: session.role });
       await refreshMe();
       return session;
     },
     [persist, refreshMe],
+  );
+
+  const resendVerification = useCallback(
+    async (email) => authApi.resendVerification({ email }),
+    [],
   );
 
   const value = {
@@ -97,6 +107,8 @@ export function AuthProvider({ children }) {
     role: user?.role || null,
     login,
     register,
+    verifyEmail,
+    resendVerification,
     logout,
     refreshMe,
     setProfile,
