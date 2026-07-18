@@ -5,6 +5,7 @@ import com.pulse.security.SecurityUtil;
 import com.pulse.service.BloodBankService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class BloodBankController {
 
     @PutMapping("/me")
     @PreAuthorize("hasRole('BLOOD_BANK')")
-    public BloodBankDto updateMe(@RequestBody BloodBankUpdateRequest req) {
+    public BloodBankDto updateMe(@Valid @RequestBody BloodBankUpdateRequest req) {
         return bloodBankService.updateOwn(SecurityUtil.currentUserId(), req);
     }
 
@@ -44,7 +45,7 @@ public class BloodBankController {
 
     @PutMapping("/me/stock")
     @PreAuthorize("hasRole('BLOOD_BANK')")
-    public List<BloodStockDto> upsertStock(@RequestBody List<StockUpsertItem> items) {
+    public List<BloodStockDto> upsertStock(@Valid @RequestBody List<@Valid StockUpsertItem> items) {
         return bloodBankService.upsertOwnStock(SecurityUtil.currentUserId(), items);
     }
 }

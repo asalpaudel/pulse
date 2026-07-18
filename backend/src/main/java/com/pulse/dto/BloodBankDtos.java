@@ -3,6 +3,7 @@ package com.pulse.dto;
 import com.pulse.entity.BloodBank;
 import com.pulse.entity.BloodGroup;
 import com.pulse.entity.BloodStock;
+import jakarta.validation.constraints.*;
 
 import java.time.Instant;
 
@@ -22,7 +23,11 @@ public class BloodBankDtos {
     }
 
     public record BloodBankUpdateRequest(
-            String name, String phone, Double latitude, Double longitude, String address
+            @Size(min = 2, max = 160) String name,
+            @Pattern(regexp = "[+0-9() \\-]{7,25}") String phone,
+            @DecimalMin("-90.0") @DecimalMax("90.0") Double latitude,
+            @DecimalMin("-180.0") @DecimalMax("180.0") Double longitude,
+            @Size(max = 500) String address
     ) {}
 
     public record BloodStockDto(Long id, Long bloodBankId, BloodGroup bloodGroup, int units, Instant updatedAt) {
@@ -31,5 +36,5 @@ public class BloodBankDtos {
         }
     }
 
-    public record StockUpsertItem(BloodGroup bloodGroup, int units) {}
+    public record StockUpsertItem(@NotNull BloodGroup bloodGroup, @Min(0) @Max(100000) int units) {}
 }

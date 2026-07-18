@@ -5,6 +5,7 @@ import com.pulse.security.SecurityUtil;
 import com.pulse.service.HospitalService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/hospitals")
@@ -24,7 +25,7 @@ public class HospitalController {
 
     @PutMapping("/me")
     @PreAuthorize("hasRole('HOSPITAL')")
-    public HospitalDto updateMe(@RequestBody HospitalUpdateRequest req) {
+    public HospitalDto updateMe(@Valid @RequestBody HospitalUpdateRequest req) {
         return hospitalService.updateOwn(SecurityUtil.currentUserId(), req);
     }
 }

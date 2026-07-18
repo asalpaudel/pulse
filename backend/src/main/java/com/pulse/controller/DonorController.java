@@ -6,6 +6,7 @@ import com.pulse.security.SecurityUtil;
 import com.pulse.service.DonorService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class DonorController {
 
     @PutMapping("/me")
     @PreAuthorize("hasRole('DONOR')")
-    public DonorDto updateMe(@RequestBody DonorUpdateRequest req) {
+    public DonorDto updateMe(@Valid @RequestBody DonorUpdateRequest req) {
         return donorService.updateOwn(SecurityUtil.currentUserId(), req);
     }
 
